@@ -1,4 +1,4 @@
-import { Components, Theme } from '@mui/material';
+import type { Components, Theme } from '@mui/material';
 
 export const components: Components<Theme> = {
   MuiButton: {
@@ -9,9 +9,7 @@ export const components: Components<Theme> = {
         '&:hover': {
           boxShadow: 'none',
         },
-      },
-      containedPrimary: {
-        '&:hover': {
+        '&.MuiButton-containedPrimary:hover': {
           backgroundColor: '#1D4ED8', // Primary Hover
         },
       },
@@ -71,26 +69,26 @@ export const components: Components<Theme> = {
     styleOverrides: {
       root: {
         borderRadius: 12,
-      },
-      standardSuccess: {
-        backgroundColor: '#DCFCE7',
-        color: '#166534',
-        '& .MuiAlert-icon': { color: '#22C55E' },
-      },
-      standardError: {
-        backgroundColor: '#FEE2E2',
-        color: '#991B1B',
-        '& .MuiAlert-icon': { color: '#EF4444' },
-      },
-      standardWarning: {
-        backgroundColor: '#FEF3C7',
-        color: '#92400E',
-        '& .MuiAlert-icon': { color: '#F59E0B' },
-      },
-      standardInfo: {
-        backgroundColor: '#DBEAFE',
-        color: '#1E40AF',
-        '& .MuiAlert-icon': { color: '#2563EB' },
+        '&.MuiAlert-standardSuccess': {
+          backgroundColor: '#DCFCE7',
+          color: '#166534',
+          '& .MuiAlert-icon': { color: '#22C55E' },
+        },
+        '&.MuiAlert-standardError': {
+          backgroundColor: '#FEE2E2',
+          color: '#991B1B',
+          '& .MuiAlert-icon': { color: '#EF4444' },
+        },
+        '&.MuiAlert-standardWarning': {
+          backgroundColor: '#FEF3C7',
+          color: '#92400E',
+          '& .MuiAlert-icon': { color: '#F59E0B' },
+        },
+        '&.MuiAlert-standardInfo': {
+          backgroundColor: '#DBEAFE',
+          color: '#1E40AF',
+          '& .MuiAlert-icon': { color: '#2563EB' },
+        },
       },
     },
   },

@@ -1,6 +1,6 @@
-import { TypographyOptions } from '@mui/material/styles/createTypography';
+import type { ThemeOptions } from '@mui/material/styles';
 
-export const typography: TypographyOptions = {
+export const typography: ThemeOptions['typography'] = {
   fontFamily: '"Inter", "Helvetica", "Arial", sans-serif',
   h1: {
     fontWeight: 700,
