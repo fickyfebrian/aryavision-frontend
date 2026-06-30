@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { theme } from '@/app/theme';
 
 type AppProviderProps = {
   children: ReactNode;
@@ -6,12 +9,10 @@ type AppProviderProps = {
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   return (
-    <>
-      {/* 
-        This is where global providers like 
-        QueryClientProvider, ThemeProvider, AuthProvider etc. will be placed 
-      */}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {/* Other global providers like QueryClientProvider, AuthProvider etc. */}
       {children}
-    </>
+    </ThemeProvider>
   );
 };
