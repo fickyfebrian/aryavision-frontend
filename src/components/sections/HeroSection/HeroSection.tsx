@@ -11,7 +11,7 @@ import {
   HERO_PRIMARY_CTA,
   HERO_SECONDARY_CTA,
   HERO_SUBHEADLINE,
-} from '../../../constants/home';
+} from '../../../features/home/constants';
 
 export interface HeroSectionProps {
   onPrimaryClick?: () => void;
