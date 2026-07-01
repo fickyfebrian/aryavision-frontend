@@ -1,122 +1,51 @@
-import { useState } from 'react';
-import { NavLink, Link as RouterLink } from 'react-router-dom';
+import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 import Button from '@mui/material/Button';
-import { Menu as MenuIcon, Camera } from 'lucide-react';
-import { AppContainer } from '../../ui';
-
-const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'Catalog', path: '/catalog' },
-  { label: 'Recommendation', path: '/recommendation' },
-];
+import Stack from '@mui/material/Stack';
+import { AppContainer } from '../../ui/AppContainer';
+import { PrimaryButton } from '../../ui/PrimaryButton';
 
 export const Navbar = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen((prevState) => !prevState);
-  };
-
-  const drawer = (
-    <Box onClick={handleDrawerToggle} className="text-center">
-      <Typography variant="h6" className="my-4 font-bold text-blue-600">
-        Aryavision
-      </Typography>
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item.label} disablePadding>
-            <ListItemButton component={NavLink} to={item.path} className="text-center">
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-        <ListItem disablePadding className="mt-4">
-          <ListItemButton component={NavLink} to="/admin/login" className="text-center text-blue-600">
-            <ListItemText primary={<Typography sx={{ fontWeight: 600 }}>Login</Typography>} />
-          </ListItemButton>
-        </ListItem>
-      </List>
-    </Box>
-  );
-
   return (
-    <AppBar position="sticky" color="default" elevation={0} className="border-b border-border bg-white">
+    <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: 1, borderColor: 'grey.200' }}>
       <AppContainer>
-        <Toolbar disableGutters className="flex items-center justify-between py-2">
-          {/* Logo */}
-          <Box component={RouterLink} to="/" className="flex items-center gap-2 text-blue-600 no-underline">
-            <Camera size={28} />
-            <Typography variant="h6" className="hidden font-bold sm:block">
-              Aryavision
+        <Toolbar disableGutters sx={{ height: 72, justifyContent: 'space-between' }}>
+          {/* Logo Area */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
+              AryaVision
             </Typography>
           </Box>
 
-          {/* Desktop Navigation */}
-          <Box className="hidden items-center gap-2 md:flex">
-            {navItems.map((item) => (
-              <Button
-                key={item.label}
-                component={NavLink}
-                to={item.path}
-                sx={{
-                  color: 'text.secondary',
-                  '&.active': { color: 'primary.main', fontWeight: 600 },
-                }}
-              >
-                {item.label}
-              </Button>
-            ))}
-            <Button
-              component={NavLink}
-              to="/admin/login"
-              variant="outlined"
-              color="primary"
-              className="ml-4"
-              sx={{ borderRadius: '8px' }}
-            >
-              Login
-            </Button>
-          </Box>
+          {/* Navigation Area */}
+          <Stack direction="row" spacing={3} sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <Typography variant="body1" color="text.primary" sx={{ cursor: 'pointer', fontWeight: 500 }}>
+              Beranda
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ cursor: 'pointer', '&:hover': { color: 'text.primary' } }}>
+              Produk
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ cursor: 'pointer', '&:hover': { color: 'text.primary' } }}>
+              Solusi
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ cursor: 'pointer', '&:hover': { color: 'text.primary' } }}>
+              Kontak
+            </Typography>
+          </Stack>
 
-          {/* Mobile Navigation Toggle */}
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="end"
-            onClick={handleDrawerToggle}
-            className="md:hidden"
-          >
-            <MenuIcon />
-          </IconButton>
+          {/* Action Area */}
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+            <Button color="inherit" sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
+              Masuk
+            </Button>
+            <PrimaryButton>
+              Konsultasi
+            </PrimaryButton>
+          </Stack>
         </Toolbar>
       </AppContainer>
-
-      {/* Mobile Drawer */}
-      <Drawer
-        variant="temporary"
-        anchor="right"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-        }}
-      >
-        {drawer}
-      </Drawer>
     </AppBar>
   );
 };
