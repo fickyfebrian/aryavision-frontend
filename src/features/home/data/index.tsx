@@ -1,5 +1,6 @@
 import { ShieldCheck, Clock, Layers, BrainCircuit } from 'lucide-react';
 import type { HomeBenefit, HowItWorksStep, ClusterOverviewItem } from '../types';
+import type { Product } from '../../product/types';
 
 export const BENEFITS_DATA: HomeBenefit[] = [
   {
@@ -68,4 +69,43 @@ export const CLUSTER_OVERVIEW_DATA: ClusterOverviewItem[] = [
     title: 'Premium',
     description: 'Produk dengan spesifikasi tinggi untuk kebutuhan pengawasan profesional.',
   },
+];
+
+export const POPULAR_PRODUCTS_DATA: Product[] = [
+  {
+    id: 'prod-1',
+    name: 'CCTV Indoor 1080p Smart WiFi',
+    price: 350000,
+    imageUrl: 'https://images.unsplash.com/photo-1557862921-37829c790f19?auto=format&fit=crop&q=80&w=400',
+    rating: 4.8,
+    soldCount: 1250,
+    cluster: 'budget',
+  },
+  {
+    id: 'prod-2',
+    name: 'Outdoor Security Camera 2K PTZ',
+    price: 850000,
+    imageUrl: 'https://images.unsplash.com/photo-1558562805-4bf1e2a724eb?auto=format&fit=crop&q=80&w=400',
+    rating: 4.9,
+    soldCount: 890,
+    cluster: 'mid-range',
+  },
+  {
+    id: 'prod-3',
+    name: 'Pro Surveillance 4K Ultra HD',
+    price: 2500000,
+    imageUrl: 'https://images.unsplash.com/photo-1589255469956-6218d8dd7eb5?auto=format&fit=crop&q=80&w=400',
+    rating: 5.0,
+    soldCount: 340,
+    cluster: 'premium',
+  },
+  {
+    id: 'prod-4',
+    name: 'Mini Dome Camera 360°',
+    price: 450000,
+    imageUrl: 'https://images.unsplash.com/photo-1557862921-37829c790f19?auto=format&fit=crop&q=80&w=400',
+    rating: 4.7,
+    soldCount: 2100,
+    cluster: 'budget',
+  }
 ];
