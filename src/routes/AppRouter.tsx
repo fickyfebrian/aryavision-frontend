@@ -3,6 +3,8 @@ import { AppLayout } from '../components/layout';
 import { HomePage } from '../features/home';
 import { CatalogPage } from '../features/catalog';
 
+import { RecommendationPage } from '../features/recommendation';
+
 export const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -10,6 +12,7 @@ export const AppRouter = () => {
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/recommendation" element={<RecommendationPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
