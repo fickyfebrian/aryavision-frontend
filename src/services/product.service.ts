@@ -23,6 +23,7 @@ interface BackendProduct {
   description?: string;
   brand?: string;
   category?: string;
+  cluster?: number;
 }
 
 interface BackendPagination {
@@ -47,17 +48,26 @@ export interface GetProductsParams {
   page?: number;
   limit?: number;
   search?: string;
+  cluster?: number;
+  min_price?: number;
+  max_price?: number;
+  min_rating?: number;
+  max_rating?: number;
   sort?: string;
   order?: 'asc' | 'desc';
 }
 
 export const productService = {
   _mapBackendProductToFrontend: (item: BackendProduct): Product => {
+    // Backend cluster mapping 
+    // 0 = budget, 1 = mid-range, 2 = premium
     let cluster: ProductCluster = 'budget';
-    if (item.price >= 1000000) {
-      cluster = 'premium';
-    } else if (item.price >= 300000) {
+    if (item.cluster === 1) {
       cluster = 'mid-range';
+    } else if (item.cluster === 2) {
+      cluster = 'premium';
+    } else if (item.cluster === 0) {
+      cluster = 'budget';
     }
     
     return {

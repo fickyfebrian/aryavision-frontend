@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -67,10 +67,49 @@ export const CatalogPage = () => {
     setError(null);
     try {
       const [sort, order] = sortParam.split('-');
+      
+      // Parse Budget
+      let min_price: number | undefined = undefined;
+      let max_price: number | undefined = undefined;
+      if (budget === '<200k') {
+        min_price = 0;
+        max_price = 200000;
+      } else if (budget === '200k-500k') {
+        min_price = 200000;
+        max_price = 500000;
+      } else if (budget === '500k-1m') {
+        min_price = 500000;
+        max_price = 1000000;
+      } else if (budget === '>1m') {
+        min_price = 1000000;
+      }
+
+      // Parse Cluster
+      let clusterId: number | undefined = undefined;
+      if (cluster === 'budget') clusterId = 0;
+      if (cluster === 'mid-range') clusterId = 1;
+      if (cluster === 'premium') clusterId = 2;
+
+      let min_rating: number | undefined = undefined;
+      let max_rating: number | undefined = undefined;
+      if (ratingFilter) {
+        min_rating = Number(ratingFilter);
+        if (min_rating === 1) max_rating = 2;
+        if (min_rating === 2) max_rating = 3;
+        if (min_rating === 3) max_rating = 4;
+        if (min_rating === 4) max_rating = 5;
+        if (min_rating === 5) max_rating = 5;
+      }
+
       const data = await productService.getProducts({
         page,
         limit,
         search: search || undefined,
+        cluster: clusterId,
+        min_price,
+        max_price,
+        min_rating,
+        max_rating,
         sort,
         order: order as 'asc' | 'desc'
       });
@@ -82,24 +121,8 @@ export const CatalogPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, search, sortParam]);
+  }, [page, limit, search, sortParam, cluster, budget, ratingFilter]);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      let pass = true;
-      if (cluster && p.cluster !== cluster) pass = false;
-      if (budget) {
-         if (budget === '<500k' && p.price >= 500000) pass = false;
-         if (budget === '500k-1m' && (p.price < 500000 || p.price > 1000000)) pass = false;
-         if (budget === '>1m' && p.price <= 1000000) pass = false;
-      }
-      if (ratingFilter) {
-         if (ratingFilter === '>4' && p.rating < 4) pass = false;
-         if (ratingFilter === '>4.5' && p.rating < 4.5) pass = false;
-      }
-      return pass;
-    });
-  }, [products, cluster, budget, ratingFilter]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -224,12 +247,21 @@ export const CatalogPage = () => {
               <FormControl size="small" sx={{ minWidth: 120 }}>
                 <InputLabel>Rating</InputLabel>
                 <Select value={ratingFilter} label="Rating" onChange={(e) => { setRatingFilter(e.target.value as string); setPage(1); }}>
-                  <MenuItem value="">Semua</MenuItem>
-                  <MenuItem value=">4">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 4.0+</Box>
+                  <MenuItem value="">Semua Rating</MenuItem>
+                  <MenuItem value="5">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 5+</Box>
                   </MenuItem>
-                  <MenuItem value=">4.5">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 4.5+</Box>
+                  <MenuItem value="4">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 4+</Box>
+                  </MenuItem>
+                  <MenuItem value="3">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 3+</Box>
+                  </MenuItem>
+                  <MenuItem value="2">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 2+</Box>
+                  </MenuItem>
+                  <MenuItem value="1">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 1+</Box>
                   </MenuItem>
                 </Select>
               </FormControl>
@@ -311,7 +343,7 @@ export const CatalogPage = () => {
                 description={error} 
                 onRetry={fetchProducts} 
               />
-            ) : filteredProducts.length === 0 ? (
+            ) : products.length === 0 ? (
               <EmptyState 
                 title="Produk Tidak Ditemukan" 
                 description="Kami tidak dapat menemukan produk yang sesuai dengan pencarian atau filter Anda." 
@@ -319,7 +351,7 @@ export const CatalogPage = () => {
             ) : (
               <>
                 <ProductGrid 
-                  products={filteredProducts} 
+                  products={products} 
                   onProductClick={handleProductClick}
                   onSelectReference={handleSelectReference}
                   referenceProductId={referenceProductId}
