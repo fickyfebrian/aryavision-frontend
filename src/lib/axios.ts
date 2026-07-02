@@ -9,7 +9,10 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Add auth token if available here
+    const token = localStorage.getItem('token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -22,7 +25,12 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Handle global error responses here
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      if (window.location.pathname !== '/admin/login') {
+        window.location.href = '/admin/login';
+      }
+    }
     return Promise.reject(error);
   }
 );

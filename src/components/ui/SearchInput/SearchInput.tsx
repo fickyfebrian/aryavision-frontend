@@ -11,12 +11,12 @@ export type SearchInputProps = Omit<TextFieldProps, 'onChange' | 'value'> & {
 };
 
 export const SearchInput = ({ value, onChange, onClear, ...props }: SearchInputProps) => {
-  const originalInputProps = (props as any).InputProps || {};
+  const originalInputProps = (props as unknown as TextFieldProps).InputProps || {};
   
   return (
     <TextField
       variant="outlined"
-      {...(props as any)}
+      {...props}
       value={value || ''}
       onChange={(e) => onChange?.(e.target.value)}
       InputProps={{
