@@ -13,7 +13,6 @@ import { ProductDescription } from '../ProductDescription';
 import { RelatedProducts } from '../RelatedProducts';
 import { PrimaryButton, SecondaryButton } from '@/components/ui';
 import { Section, AppContainer } from '@/components/ui';
-import { POPULAR_PRODUCTS_DATA } from '@/features/home/data';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -25,6 +24,30 @@ export const ProductDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [isRelatedLoading, setIsRelatedLoading] = useState(false);
+  const [relatedError, setRelatedError] = useState<string | null>(null);
+
+  const fetchRelatedProducts = async (productId: string) => {
+    setIsRelatedLoading(true);
+    setRelatedError(null);
+    try {
+      const { recommendations: apiRecs } = await productService.getRecommendations(productId);
+      setRelatedProducts(apiRecs.slice(0, 3));
+    } catch {
+      setRelatedError('Gagal memuat rekomendasi produk.');
+    } finally {
+      setIsRelatedLoading(false);
+    }
+  };
+
+  const handleViewRecommendation = (targetProduct?: Product) => {
+    const prod = targetProduct || product;
+    if (prod) {
+      navigate('/catalog', { state: { referenceProductId: prod.id } });
+    }
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
@@ -35,6 +58,8 @@ export const ProductDetailPage = () => {
       try {
         const data = await productService.getProductById(id);
         setProduct(data);
+        // Fetch recommendations directly after
+        await fetchRelatedProducts(id);
       } catch (err: unknown) {
         if (err && typeof err === 'object' && 'response' in err) {
           const responseErr = err as { response?: { status?: number } };
@@ -51,8 +76,6 @@ export const ProductDetailPage = () => {
 
     fetchProduct();
   }, [id]);
-
-  const relatedProducts = POPULAR_PRODUCTS_DATA.slice(1, 5);
 
   if (isLoading) {
     return <PageLoader />;
@@ -105,7 +128,7 @@ export const ProductDetailPage = () => {
               
               {/* Desktop Actions */}
               <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, mb: 5 }}>
-                <PrimaryButton startIcon={<ShoppingBagIcon />} sx={{ minWidth: 200 }}>
+                <PrimaryButton startIcon={<ShoppingBagIcon />} sx={{ minWidth: 200 }} onClick={() => handleViewRecommendation()}>
                   Lihat Rekomendasi
                 </PrimaryButton>
                 <SecondaryButton startIcon={<ArrowBackIcon />} onClick={() => navigate('/catalog')}>
@@ -121,7 +144,14 @@ export const ProductDetailPage = () => {
             </Grid>
           </Grid>
           
-          <RelatedProducts products={relatedProducts} />
+          <RelatedProducts 
+            products={relatedProducts} 
+            isLoading={isRelatedLoading}
+            error={relatedError}
+            onRetry={() => id && fetchRelatedProducts(id)}
+            onProductClick={(p) => navigate(`/product/${p.id}`)}
+            onSelectReference={(p) => handleViewRecommendation(p)}
+          />
         </AppContainer>
       </Section>
 
@@ -143,8 +173,8 @@ export const ProductDetailPage = () => {
         <SecondaryButton sx={{ minWidth: 0, px: 2 }} onClick={() => navigate('/catalog')}>
           <ArrowBackIcon />
         </SecondaryButton>
-        <PrimaryButton fullWidth startIcon={<ShoppingBagIcon />}>
-          Rekomendasi Serupa
+        <PrimaryButton fullWidth startIcon={<ShoppingBagIcon />} onClick={() => handleViewRecommendation()}>
+          Lihat Rekomendasi
         </PrimaryButton>
       </Paper>
     </Box>

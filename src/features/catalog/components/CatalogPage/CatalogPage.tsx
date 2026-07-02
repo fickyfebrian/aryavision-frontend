@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -17,12 +17,27 @@ import { ProductGrid } from '../ProductGrid';
 import { ProductCard } from '@/features/product';
 import { ProductGridSkeleton } from '../ProductGridSkeleton';
 import { RecommendationResult, RecommendationSkeleton, RecommendationEmpty } from '@/features/recommendation/components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { productService } from '@/services/product.service';
 import type { Product } from '@/features/product/types';
 
+const SESSION_KEY = 'aryavision_recommendation_state';
+
+const getSavedState = () => {
+  const saved = sessionStorage.getItem(SESSION_KEY);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
 export const CatalogPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   // API States
   const [products, setProducts] = useState<Product[]>([]);
@@ -41,9 +56,9 @@ export const CatalogPage = () => {
   const [ratingFilter, setRatingFilter] = useState('');
 
   // Recommendation States
-  const [referenceProductId, setReferenceProductId] = useState<string | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [recommendations, setRecommendations] = useState<Product[]>([]);
+  const [referenceProductId, setReferenceProductId] = useState<string | null>(() => getSavedState()?.referenceProductId || null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => getSavedState()?.selectedProduct || null);
+  const [recommendations, setRecommendations] = useState<Product[]>(() => getSavedState()?.recommendations || []);
   const [isRecLoading, setIsRecLoading] = useState(false);
   const [recError, setRecError] = useState<string | null>(null);
 
@@ -68,6 +83,23 @@ export const CatalogPage = () => {
       setIsLoading(false);
     }
   }, [page, limit, search, sortParam]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      let pass = true;
+      if (cluster && p.cluster !== cluster) pass = false;
+      if (budget) {
+         if (budget === '<500k' && p.price >= 500000) pass = false;
+         if (budget === '500k-1m' && (p.price < 500000 || p.price > 1000000)) pass = false;
+         if (budget === '>1m' && p.price <= 1000000) pass = false;
+      }
+      if (ratingFilter) {
+         if (ratingFilter === '>4' && p.rating < 4) pass = false;
+         if (ratingFilter === '>4.5' && p.rating < 4.5) pass = false;
+      }
+      return pass;
+    });
+  }, [products, cluster, budget, ratingFilter]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -97,11 +129,17 @@ export const CatalogPage = () => {
     navigate(`/product/${product.id}`);
   }, [navigate]);
 
+  const handleClearReference = useCallback(() => {
+    setReferenceProductId(null);
+    setSelectedProduct(null);
+    setRecommendations([]);
+    sessionStorage.removeItem(SESSION_KEY);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const handleSelectReference = useCallback(async (product: Product) => {
     if (referenceProductId === product.id) {
-      setReferenceProductId(null);
-      setSelectedProduct(null);
-      setRecommendations([]);
+      handleClearReference();
       return;
     }
     setReferenceProductId(product.id);
@@ -109,15 +147,36 @@ export const CatalogPage = () => {
     setRecError(null);
     try {
       const { selectedProduct: apiSelected, recommendations: apiRecs } = await productService.getRecommendations(product.id);
+      const newRecs = apiRecs.slice(0, 3);
       setSelectedProduct(apiSelected);
-      setRecommendations(apiRecs.slice(0, 3));
+      setRecommendations(newRecs);
+      
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+        referenceProductId: product.id,
+        selectedProduct: apiSelected,
+        recommendations: newRecs
+      }));
     } catch {
       setRecError('Gagal memuat rekomendasi. Silakan coba lagi.');
     } finally {
       setIsRecLoading(false);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [referenceProductId]);
+  }, [referenceProductId, handleClearReference]);
+
+  useEffect(() => {
+    const stateRefId = location.state?.referenceProductId;
+    if (stateRefId) {
+      navigate(location.pathname, { replace: true, state: {} });
+      if (referenceProductId !== stateRefId) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        handleSelectReference({ id: stateRefId } as Product);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.referenceProductId]);
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
@@ -131,8 +190,8 @@ export const CatalogPage = () => {
             Temukan berbagai pilihan CCTV terbaik sesuai dengan kebutuhan dan anggaran Anda.
           </Typography>
 
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ alignItems: 'center' }}>
-            <Box sx={{ flexGrow: 1, width: '100%', maxWidth: { md: 300 } }}>
+          <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2} sx={{ alignItems: { xs: 'stretch', lg: 'center' } }}>
+            <Box sx={{ flexGrow: 1 }}>
               <SearchInput 
                 placeholder="Cari CCTV..." 
                 value={search}
@@ -141,7 +200,7 @@ export const CatalogPage = () => {
               />
             </Box>
             
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: '100%', flexWrap: 'wrap', gap: 2 }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ flexShrink: 0 }}>
               <FormControl size="small" sx={{ minWidth: 120 }}>
                 <InputLabel>Cluster</InputLabel>
                 <Select value={cluster} label="Cluster" onChange={(e) => { setCluster(e.target.value as string); setPage(1); }}>
@@ -166,12 +225,16 @@ export const CatalogPage = () => {
                 <InputLabel>Rating</InputLabel>
                 <Select value={ratingFilter} label="Rating" onChange={(e) => { setRatingFilter(e.target.value as string); setPage(1); }}>
                   <MenuItem value="">Semua</MenuItem>
-                  <MenuItem value=">4">4 Bintang +</MenuItem>
-                  <MenuItem value=">4.5">4.5 Bintang +</MenuItem>
+                  <MenuItem value=">4">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 4.0+</Box>
+                  </MenuItem>
+                  <MenuItem value=">4.5">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>⭐ 4.5+</Box>
+                  </MenuItem>
                 </Select>
               </FormControl>
               
-              <Button variant="outlined" onClick={handleResetFilter} sx={{ height: 40 }}>
+              <Button variant="outlined" onClick={handleResetFilter} sx={{ height: 40, whiteSpace: 'nowrap' }}>
                 Reset Filter
               </Button>
             </Stack>
@@ -181,9 +244,14 @@ export const CatalogPage = () => {
                 {/* Recommendation Section */}
         {referenceProductId && (
           <Box sx={{ mb: 6, p: 3, bgcolor: 'grey.50', borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3 }}>
-              Sistem Pendukung Keputusan
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                Rekomendasi Untuk Anda
+              </Typography>
+              <Button size="small" color="error" variant="text" onClick={handleClearReference}>
+                Bersihkan Acuan
+              </Button>
+            </Box>
             
             {selectedProduct && (
               <Box sx={{ mb: 4 }}>
@@ -243,7 +311,7 @@ export const CatalogPage = () => {
                 description={error} 
                 onRetry={fetchProducts} 
               />
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <EmptyState 
                 title="Produk Tidak Ditemukan" 
                 description="Kami tidak dapat menemukan produk yang sesuai dengan pencarian atau filter Anda." 
@@ -251,7 +319,7 @@ export const CatalogPage = () => {
             ) : (
               <>
                 <ProductGrid 
-                  products={products} 
+                  products={filteredProducts} 
                   onProductClick={handleProductClick}
                   onSelectReference={handleSelectReference}
                   referenceProductId={referenceProductId}

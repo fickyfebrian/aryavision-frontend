@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import { Section } from '../../ui/Section';
 import { AppContainer } from '../../ui/AppContainer';
@@ -64,6 +65,12 @@ export const PopularProductsSection = () => {
     }
   }, [referenceProductId]);
 
+  const handleClearReference = useCallback(() => {
+    setReferenceProductId(null);
+    setSelectedProduct(null);
+    setRecommendations([]);
+  }, []);
+
   return (
     <Section sx={styles.section}>
       <AppContainer>
@@ -76,9 +83,14 @@ export const PopularProductsSection = () => {
         {/* Recommendation Section */}
         {referenceProductId && (
           <Box sx={{ mb: 6, p: 3, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid', borderColor: 'grey.200' }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 3 }}>
-              Sistem Pendukung Keputusan
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                Rekomendasi Untuk Anda
+              </Typography>
+              <Button size="small" color="error" variant="text" onClick={handleClearReference}>
+                Bersihkan Acuan
+              </Button>
+            </Box>
 
             {selectedProduct && (
               <Box sx={{ mb: 4 }}>
