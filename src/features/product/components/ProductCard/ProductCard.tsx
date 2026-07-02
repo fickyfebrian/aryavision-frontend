@@ -13,9 +13,13 @@ import type { Product } from '../../types';
 export interface ProductCardProps {
   product: Product;
   onClick?: (product: Product) => void;
+  onSelectReference?: (product: Product) => void;
+  isReference?: boolean;
 }
 
-export const ProductCard = ({ product, onClick }: ProductCardProps) => {
+import Button from '@mui/material/Button';
+
+export const ProductCard = ({ product, onClick, onSelectReference, isReference }: ProductCardProps) => {
   return (
     <Card 
       className="group flex h-full flex-col transition-all duration-300 hover:shadow-lg"
@@ -55,6 +59,25 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
           </Box>
         </CardContent>
       </CardActionArea>
+      <Box sx={{ p: 2, pt: 0, display: 'flex', gap: 1 }}>
+        <Button 
+          variant="outlined" 
+          size="small" 
+          fullWidth
+          onClick={(e) => { e.stopPropagation(); onClick?.(product); }}
+        >
+          Detail
+        </Button>
+        <Button 
+          variant={isReference ? "outlined" : "contained"}
+          color={isReference ? "error" : "primary"}
+          size="small" 
+          fullWidth
+          onClick={(e) => { e.stopPropagation(); onSelectReference?.(product); }}
+        >
+          {isReference ? "Hapus Acuan" : "Acuan"}
+        </Button>
+      </Box>
     </Card>
   );
 };

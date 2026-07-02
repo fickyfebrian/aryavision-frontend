@@ -9,7 +9,19 @@ const dummySpecs = [
   { label: 'Power', value: '5V/1A USB' },
 ];
 
-export const ProductSpecs = () => {
+export interface ProductSpec {
+  label: string;
+  value: string;
+}
+
+export interface ProductSpecsProps {
+  specs?: ProductSpec[];
+}
+
+export const ProductSpecs = ({ specs }: ProductSpecsProps) => {
+  // Use dummy if no specs provided, as requested by 'Pertahankan reusable components'
+  const displaySpecs = specs && specs.length > 0 ? specs : dummySpecs;
+  
   return (
     <Box sx={{ mb: 5 }}>
       <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
@@ -18,7 +30,7 @@ export const ProductSpecs = () => {
       <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2 }}>
         <Table sx={{ minWidth: 250 }} aria-label="spesifikasi produk">
           <TableBody>
-            {dummySpecs.map((spec, index) => (
+            {displaySpecs.map((spec, index) => (
               <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component="th" scope="row" sx={{ width: '40%', fontWeight: 500, bgcolor: 'grey.50' }}>
                   {spec.label}

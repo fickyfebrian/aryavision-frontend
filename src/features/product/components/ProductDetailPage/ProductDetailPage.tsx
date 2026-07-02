@@ -1,5 +1,11 @@
 import { Box, Paper } from '@mui/material';
 import { Grid } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { productService } from '@/services/product.service';
+import type { Product } from '@/features/product/types';
+import { ErrorState, EmptyState } from '@/components/common';
+import { PageLoader } from '@/components/ui';
 import { ProductImageGallery } from '../ProductImageGallery';
 import { ProductInfo } from '../ProductInfo';
 import { ProductSpecs } from '../ProductSpecs';
@@ -12,9 +18,70 @@ import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export const ProductDetailPage = () => {
-  // Using dummy product for presentational purposes
-  const product = POPULAR_PRODUCTS_DATA[0];
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const data = await productService.getProductById(id);
+        setProduct(data);
+      } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'response' in err) {
+          const responseErr = err as { response?: { status?: number } };
+          if (responseErr.response?.status === 404) {
+            setProduct(null);
+            return;
+          }
+        }
+        setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat memuat data produk.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
   const relatedProducts = POPULAR_PRODUCTS_DATA.slice(1, 5);
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ pt: 10, pb: 10 }}>
+        <ErrorState 
+          description={error} 
+          onRetry={() => window.location.reload()} 
+        />
+      </Box>
+    );
+  }
+
+  if (!product) {
+    return (
+      <Box sx={{ pt: 10, pb: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <EmptyState 
+          title="Produk Tidak Ditemukan"
+          description="Produk yang Anda cari tidak tersedia atau telah dihapus."
+        />
+        <SecondaryButton onClick={() => navigate('/catalog')}>
+          Kembali ke Katalog
+        </SecondaryButton>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ pb: { xs: 10, md: 0 } }}>
@@ -41,13 +108,16 @@ export const ProductDetailPage = () => {
                 <PrimaryButton startIcon={<ShoppingBagIcon />} sx={{ minWidth: 200 }}>
                   Lihat Rekomendasi
                 </PrimaryButton>
-                <SecondaryButton startIcon={<ArrowBackIcon />}>
+                <SecondaryButton startIcon={<ArrowBackIcon />} onClick={() => navigate('/catalog')}>
                   Kembali ke Katalog
                 </SecondaryButton>
               </Box>
 
-              <ProductSpecs />
-              <ProductDescription />
+              <ProductSpecs specs={[
+                ...(product.brand ? [{ label: 'Brand', value: product.brand }] : []),
+                ...(product.category ? [{ label: 'Kategori', value: product.category }] : []),
+              ]} />
+              <ProductDescription description={product.description} />
             </Grid>
           </Grid>
           
@@ -70,7 +140,7 @@ export const ProductDetailPage = () => {
           borderRadius: '16px 16px 0 0'
         }}
       >
-        <SecondaryButton sx={{ minWidth: 0, px: 2 }}>
+        <SecondaryButton sx={{ minWidth: 0, px: 2 }} onClick={() => navigate('/catalog')}>
           <ArrowBackIcon />
         </SecondaryButton>
         <PrimaryButton fullWidth startIcon={<ShoppingBagIcon />}>

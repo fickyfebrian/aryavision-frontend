@@ -5,9 +5,11 @@ import type { Product } from '@/features/product';
 
 interface RecommendationResultProps {
   products: Product[];
+  onProductClick?: (product: Product) => void;
+  onSelectReference?: (product: Product) => void;
 }
 
-export const RecommendationResult = ({ products }: RecommendationResultProps) => {
+export const RecommendationResult = ({ products, onProductClick, onSelectReference }: RecommendationResultProps) => {
   return (
     <Box sx={{ mt: 4 }}>
       <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', mb: 3 }}>
@@ -16,7 +18,11 @@ export const RecommendationResult = ({ products }: RecommendationResultProps) =>
       <Grid container spacing={3}>
         {products.map((product) => (
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.id}>
-            <ProductCard product={product} />
+            <ProductCard 
+              product={product} 
+              onClick={onProductClick}
+              onSelectReference={onSelectReference}
+            />
           </Grid>
         ))}
       </Grid>

@@ -9,6 +9,8 @@ export interface Product {
   rating: number;
   soldCount: number;
   cluster: ProductCluster;
+  brand?: string;
+  category?: string;
 }
 
 export interface RecommendationProduct extends Product {
