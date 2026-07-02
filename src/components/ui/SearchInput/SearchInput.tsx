@@ -1,27 +1,27 @@
 import TextField from '@mui/material/TextField';
-import type { TextFieldProps } from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import { Search, X } from 'lucide-react';
 
-export type SearchInputProps = Omit<TextFieldProps, 'onChange' | 'value'> & {
+export interface SearchInputProps {
   value?: string;
   onChange?: (value: string) => void;
   onClear?: () => void;
-};
+  placeholder?: string;
+  className?: string;
+}
 
-export const SearchInput = ({ value, onChange, onClear, ...props }: SearchInputProps) => {
-  const originalInputProps = (props as unknown as TextFieldProps).InputProps || {};
-  
+export const SearchInput = ({ value, onChange, onClear, placeholder, className }: SearchInputProps) => {
   return (
     <TextField
       variant="outlined"
-      {...props}
+      placeholder={placeholder}
+      className={className}
       value={value || ''}
       onChange={(e) => onChange?.(e.target.value)}
-      InputProps={{
-        ...originalInputProps,
-        startAdornment: (
+      slotProps={{
+        input: {
+          startAdornment: (
           <InputAdornment position="start">
             <Search size={20} className="text-gray-400" />
           </InputAdornment>
@@ -32,7 +32,8 @@ export const SearchInput = ({ value, onChange, onClear, ...props }: SearchInputP
               <X size={16} />
             </IconButton>
           </InputAdornment>
-        ) : originalInputProps.endAdornment,
+        ) : undefined,
+        }
       }}
     />
   );
