@@ -345,7 +345,14 @@ export const CatalogPage = () => {
               bgcolor: "background.paper",
             }}
           >
-            <Stack spacing={2}>
+            <Stack
+              component="form"
+              spacing={2}
+              onSubmit={(e: React.FormEvent) => {
+                e.preventDefault();
+                handleApplyFilter();
+              }}
+            >
               {/* Search - full width */}
               <SearchInput
                 placeholder="Cari CCTV..."
@@ -449,6 +456,7 @@ export const CatalogPage = () => {
                   }}
                 >
                   <Button
+                    type="button"
                     variant="outlined"
                     onClick={handleResetFilter}
                     sx={{ height: 40, whiteSpace: "nowrap" }}
@@ -456,10 +464,10 @@ export const CatalogPage = () => {
                     Reset
                   </Button>
                   <Button
+                    type="submit"
                     variant="contained"
                     color="primary"
                     disableElevation
-                    onClick={handleApplyFilter}
                     sx={{ height: 40, whiteSpace: "nowrap", minWidth: 140 }}
                   >
                     Terapkan Filter
