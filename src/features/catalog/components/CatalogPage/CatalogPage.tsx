@@ -11,6 +11,8 @@ import {
   Select,
   MenuItem,
   TextField,
+  Paper,
+  Divider,
 } from "@mui/material";
 import { NumericFormat, type NumericFormatProps } from "react-number-format";
 import { AppContainer, SearchInput } from "@/components/ui";
@@ -333,107 +335,139 @@ export const CatalogPage = () => {
             anggaran Anda.
           </Typography>
 
-          {/* Filters Row */}
-          <Stack
-            direction={{ xs: "column", lg: "row" }}
-            spacing={2}
-            sx={{ alignItems: "flex-start" }}
+          {/* Filters Card */}
+          <Paper
+            variant="outlined"
+            sx={{
+              p: { xs: 2, sm: 2.5 },
+              borderRadius: 2,
+              borderColor: "grey.200",
+              bgcolor: "background.paper",
+            }}
           >
-            <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", lg: 200 } }}>
+            <Stack spacing={2}>
+              {/* Search - full width */}
               <SearchInput
                 placeholder="Cari CCTV..."
                 value={draftSearch}
                 onChange={setDraftSearch}
                 onClear={() => setDraftSearch("")}
               />
-            </Box>
 
-            <Stack
-              direction={{ xs: "column", md: "row" }}
-              spacing={2}
-              sx={{ flexWrap: "wrap", width: { xs: "100%", lg: "auto" } }}
-            >
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>Cluster</InputLabel>
-                <Select
-                  value={draftCluster}
-                  label="Cluster"
-                  onChange={(e) => setDraftCluster(e.target.value as string)}
-                >
-                  <MenuItem value="">Semua</MenuItem>
-                  <MenuItem value="budget">Budget</MenuItem>
-                  <MenuItem value="mid-range">Mid-Range</MenuItem>
-                  <MenuItem value="premium">Premium</MenuItem>
-                </Select>
-              </FormControl>
+              <Divider sx={{ borderStyle: "dashed" }} />
 
-              <FormControl size="small" sx={{ minWidth: 140 }}>
-                <InputLabel>Rating</InputLabel>
-                <Select
-                  value={draftRating}
-                  label="Rating"
-                  onChange={(e) => setDraftRating(e.target.value as string)}
-                >
-                  <MenuItem value="Semua Rating">Semua Rating</MenuItem>
-                  <MenuItem value="★★★★★">⭐ 5+</MenuItem>
-                  <MenuItem value="★★★★☆">⭐ 4+</MenuItem>
-                  <MenuItem value="★★★☆☆">⭐ 3+</MenuItem>
-                  <MenuItem value="★★☆☆☆">⭐ 2+</MenuItem>
-                  <MenuItem value="★☆☆☆☆">⭐ 1+</MenuItem>
-                </Select>
-              </FormControl>
-
-              <TextField
-                name="minPrice"
-                value={draftMinPrice}
-                onChange={(e) => setDraftMinPrice(e.target.value)}
-                label="Harga Minimum"
-                size="small"
-                sx={{ minWidth: 150 }}
-                error={!!priceError}
-                slotProps={{
-                  input: {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    inputComponent: NumericFormatCustom as any,
-                  },
-                }}
-              />
-
-              <TextField
-                name="maxPrice"
-                value={draftMaxPrice}
-                onChange={(e) => setDraftMaxPrice(e.target.value)}
-                label="Harga Maksimum"
-                size="small"
-                sx={{ minWidth: 150 }}
-                error={!!priceError}
-                helperText={priceError}
-                slotProps={{
-                  input: {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    inputComponent: NumericFormatCustom as any,
-                  },
-                }}
-              />
-
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleApplyFilter}
-                sx={{ height: 40, whiteSpace: "nowrap", minWidth: 140 }}
+              {/* Filter fields */}
+              <Stack
+                direction={{ xs: "column", md: "row" }}
+                spacing={1.5}
+                sx={{ alignItems: { xs: "stretch", md: "flex-start" } }}
               >
-                Terapkan Filter
-              </Button>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1.5}
+                  sx={{ flexGrow: 1, flexWrap: "wrap", rowGap: 1.5 }}
+                >
+                  <FormControl
+                    size="small"
+                    sx={{ minWidth: 140, flex: { sm: 1 } }}
+                  >
+                    <InputLabel>Cluster</InputLabel>
+                    <Select
+                      value={draftCluster}
+                      label="Cluster"
+                      onChange={(e) =>
+                        setDraftCluster(e.target.value as string)
+                      }
+                    >
+                      <MenuItem value="">Semua</MenuItem>
+                      <MenuItem value="budget">Budget</MenuItem>
+                      <MenuItem value="mid-range">Mid-Range</MenuItem>
+                      <MenuItem value="premium">Premium</MenuItem>
+                    </Select>
+                  </FormControl>
 
-              <Button
-                variant="outlined"
-                onClick={handleResetFilter}
-                sx={{ height: 40, whiteSpace: "nowrap" }}
-              >
-                Reset Filter
-              </Button>
+                  <FormControl
+                    size="small"
+                    sx={{ minWidth: 140, flex: { sm: 1 } }}
+                  >
+                    <InputLabel>Rating</InputLabel>
+                    <Select
+                      value={draftRating}
+                      label="Rating"
+                      onChange={(e) => setDraftRating(e.target.value as string)}
+                    >
+                      <MenuItem value="Semua Rating">Semua Rating</MenuItem>
+                      <MenuItem value="★★★★★">⭐ 5+</MenuItem>
+                      <MenuItem value="★★★★☆">⭐ 4+</MenuItem>
+                      <MenuItem value="★★★☆☆">⭐ 3+</MenuItem>
+                      <MenuItem value="★★☆☆☆">⭐ 2+</MenuItem>
+                      <MenuItem value="★☆☆☆☆">⭐ 1+</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <TextField
+                    name="minPrice"
+                    value={draftMinPrice}
+                    onChange={(e) => setDraftMinPrice(e.target.value)}
+                    label="Harga Minimum"
+                    size="small"
+                    sx={{ minWidth: 150, flex: { sm: 1 } }}
+                    error={!!priceError}
+                    slotProps={{
+                      input: {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        inputComponent: NumericFormatCustom as any,
+                      },
+                    }}
+                  />
+
+                  <TextField
+                    name="maxPrice"
+                    value={draftMaxPrice}
+                    onChange={(e) => setDraftMaxPrice(e.target.value)}
+                    label="Harga Maksimum"
+                    size="small"
+                    sx={{ minWidth: 150, flex: { sm: 1 } }}
+                    error={!!priceError}
+                    helperText={priceError || " "}
+                    slotProps={{
+                      input: {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        inputComponent: NumericFormatCustom as any,
+                      },
+                    }}
+                  />
+                </Stack>
+
+                {/* Actions */}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{
+                    justifyContent: { xs: "stretch", md: "flex-end" },
+                    "& > *": { flex: { xs: 1, md: "0 0 auto" } },
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    onClick={handleResetFilter}
+                    sx={{ height: 40, whiteSpace: "nowrap" }}
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    onClick={handleApplyFilter}
+                    sx={{ height: 40, whiteSpace: "nowrap", minWidth: 140 }}
+                  >
+                    Terapkan Filter
+                  </Button>
+                </Stack>
+              </Stack>
             </Stack>
-          </Stack>
+          </Paper>
         </Box>
 
         {/* Recommendation Section */}
