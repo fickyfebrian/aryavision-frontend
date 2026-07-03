@@ -1,4 +1,45 @@
-import { useState, useEffect } from 'react';
+import os
+import re
+
+def write_file(path, content):
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"Fixed: {path}")
+
+# 1. Patch ProductFormModal.tsx
+modal_path = 'src/features/admin/components/ProductFormModal.tsx'
+with open(modal_path, 'r', encoding='utf-8') as f:
+    modal_content = f.read()
+
+# Add validation in handleChange
+change_handler = """  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === 'rating') {
+      const num = parseFloat(value);
+      if (num < 0 || num > 5) return; // Prevent typing outside bounds
+    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };"""
+modal_content = re.sub(r'const handleChange =.*?};', change_handler, modal_content, flags=re.DOTALL)
+
+# Add slotProps to Rating field
+rating_field_old = """                label="Rating (0-5)"
+                name="rating"
+                type="number"
+                
+                value={formData.rating}"""
+rating_field_new = """                label="Rating (0-5)"
+                name="rating"
+                type="number"
+                slotProps={{ htmlInput: { min: 0, max: 5, step: 0.1 } }}
+                value={formData.rating}"""
+modal_content = modal_content.replace(rating_field_old, rating_field_new)
+
+write_file(modal_path, modal_content)
+
+# 2. Rewrite ProductsPage.tsx
+prod_path = 'src/features/admin/ProductsPage.tsx'
+products_page = """import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -415,3 +456,6 @@ export const ProductsPage = () => {
     </Box>
   );
 };
+"""
+write_file(prod_path, products_page)
+

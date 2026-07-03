@@ -57,8 +57,12 @@ export const ProductFormModal = ({ open, onClose, onSubmit, initialData, loading
     }
   }, [initialData, open]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    if (name === 'rating') {
+      const num = parseFloat(value);
+      if (num < 0 || num > 5) return; // Prevent typing outside bounds
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -125,7 +129,7 @@ export const ProductFormModal = ({ open, onClose, onSubmit, initialData, loading
                 label="Rating (0-5)"
                 name="rating"
                 type="number"
-                
+                slotProps={{ htmlInput: { min: 0, max: 5, step: 0.1 } }}
                 value={formData.rating}
                 onChange={handleChange}
               />
