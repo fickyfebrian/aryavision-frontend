@@ -59,8 +59,6 @@ export interface GetProductsParams {
 
 export const productService = {
   _mapBackendProductToFrontend: (item: BackendProduct): Product => {
-    // Backend cluster mapping 
-    // 0 = budget, 1 = mid-range, 2 = premium
     let cluster: ProductCluster = 'budget';
     if (item.cluster === 1 || item.cluster === 'Mid Range') {
       cluster = 'mid-range';
@@ -87,7 +85,6 @@ export const productService = {
   getProducts: async (params: GetProductsParams): Promise<PaginatedResponse<Product>['data']> => {
     const response = await axiosInstance.get<BackendPaginatedResponse>('/products', { params });
     const backendData = response.data.data;
-    
     const items: Product[] = backendData.items.map(productService._mapBackendProductToFrontend);
 
     return {
@@ -118,5 +115,21 @@ export const productService = {
       selectedProduct: productService._mapBackendProductToFrontend(response.data.data.selected_product),
       recommendations: response.data.data.recommendations.map(productService._mapBackendProductToFrontend)
     };
+  },
+
+  // CMS Endpoints
+  createProduct: async (data: Partial<BackendProduct>) => {
+    const response = await axiosInstance.post('/products', data);
+    return response.data;
+  },
+
+  updateProduct: async (id: string, data: Partial<BackendProduct>) => {
+    const response = await axiosInstance.put(`/products/${id}`, data);
+    return response.data;
+  },
+
+  deleteProduct: async (id: string) => {
+    const response = await axiosInstance.delete(`/products/${id}`);
+    return response.data;
   }
 };

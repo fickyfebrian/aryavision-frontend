@@ -1,10 +1,12 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "../components/layout";
+import { AdminLayout } from "../layouts/AdminLayout";
 import { HomePage } from "../features/home";
 import { CatalogPage } from "../features/catalog";
 import { RecommendationPage } from "../features/recommendation";
 import { ProductDetailPage } from "../features/product";
 import { LoginPage } from "../features/auth";
+import { DashboardPage, ProductsPage } from "../features/admin";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 export const AppRouter = () => {
@@ -24,16 +26,13 @@ export const AppRouter = () => {
 
         {/* Protected Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute />}>
-          <Route
-            index
-            element={
-              <div style={{ padding: "2rem" }}>
-                <h1>Admin Dashboard</h1>
-                <p>Welcome to Admin Panel</p>
-              </div>
-            }
-          />
+          <Route element={<AdminLayout />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="products" element={<ProductsPage />} />
+          </Route>
         </Route>
+        
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
