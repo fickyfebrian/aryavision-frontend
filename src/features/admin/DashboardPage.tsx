@@ -1,46 +1,14 @@
-import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
-
 import CircularProgress from "@mui/material/CircularProgress";
 import { Package, Tags, Award, TrendingUp, TrendingDown } from "lucide-react";
-import { productService } from "@/services/product.service";
+import { useDashboardStats } from "./hooks/use-dashboard-stats";
 
 export const DashboardPage = () => {
-  const [stats, setStats] = useState({
-    total: 0,
-    brand: 0,
-    budget: 0,
-    midRange: 0,
-    premium: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: stats, isLoading, error } = useDashboardStats();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const res = await productService.getDashboardStats();
-        setStats({
-          total: res.total_products,
-          brand: res.total_brands,
-          budget: res.budget_cluster,
-          midRange: res.mid_range_cluster,
-          premium: res.premium_cluster,
-        });
-      } catch (err: any) {
-        setError(err.message || "Gagal mengambil data statistik");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Box className="flex h-[400px] items-center justify-center">
         <CircularProgress />
@@ -48,10 +16,12 @@ export const DashboardPage = () => {
     );
   }
 
-  if (error) {
+  if (error || !stats) {
     return (
       <Box className="flex h-[400px] items-center justify-center">
-        <Typography color="error">{error}</Typography>
+        <Typography color="error">
+          {error instanceof Error ? error.message : "Gagal mengambil data statistik"}
+        </Typography>
       </Box>
     );
   }
@@ -59,31 +29,31 @@ export const DashboardPage = () => {
   const statCards = [
     {
       label: "Total Products",
-      value: stats.total,
+      value: stats.total_products,
       icon: <Package size={24} className="text-blue-500" />,
       color: "bg-blue-50 border-blue-100",
     },
     {
       label: "Total Brands",
-      value: stats.brand,
+      value: stats.total_brands,
       icon: <Tags size={24} className="text-purple-500" />,
       color: "bg-purple-50 border-purple-100",
     },
     {
       label: "Budget Cluster",
-      value: stats.budget,
+      value: stats.budget_cluster,
       icon: <TrendingDown size={24} className="text-green-500" />,
       color: "bg-green-50 border-green-100",
     },
     {
       label: "Mid Range Cluster",
-      value: stats.midRange,
+      value: stats.mid_range_cluster,
       icon: <Award size={24} className="text-orange-500" />,
       color: "bg-orange-50 border-orange-100",
     },
     {
       label: "Premium Cluster",
-      value: stats.premium,
+      value: stats.premium_cluster,
       icon: <TrendingUp size={24} className="text-red-500" />,
       color: "bg-red-50 border-red-100",
     },

@@ -1,34 +1,38 @@
 import { useState } from 'react';
 import { Box, Paper, Typography, TextField, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { PrimaryButton } from '@/components/ui';
 import { authService } from '@/services/auth.service';
+import { loginSchema, type LoginFormValues } from '@/features/auth/schemas/login.schema';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { username: '', password: '' },
+  });
 
+  const onSubmit = async (data: LoginFormValues) => {
+    setServerError('');
     try {
-      const tokenResponse = await authService.login({ username, password });
+      const tokenResponse = await authService.login(data);
       localStorage.setItem('token', tokenResponse.access_token);
       navigate('/admin');
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosErr = err as { response?: { data?: { message?: string } } };
-        setError(axiosErr.response?.data?.message || 'Gagal login. Periksa kembali username dan password Anda.');
+        setServerError(axiosErr.response?.data?.message || 'Gagal login. Periksa kembali username dan password Anda.');
       } else {
-        setError('Gagal login. Periksa kembali username dan password Anda.');
+        setServerError('Gagal login. Periksa kembali username dan password Anda.');
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -44,21 +48,21 @@ export const LoginPage = () => {
           </Typography>
         </Box>
 
-        {error && (
+        {serverError && (
           <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
+            {serverError}
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <TextField
             fullWidth
             label="Username"
             variant="outlined"
             margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
+            {...register('username')}
+            error={!!errors.username}
+            helperText={errors.username?.message}
             autoComplete="username"
             autoFocus
           />
@@ -68,19 +72,19 @@ export const LoginPage = () => {
             type="password"
             variant="outlined"
             margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            {...register('password')}
+            error={!!errors.password}
+            helperText={errors.password?.message}
             autoComplete="current-password"
             sx={{ mb: 3 }}
           />
           <PrimaryButton 
             fullWidth 
             type="submit" 
-            disabled={isLoading || !username || !password}
+            disabled={isSubmitting}
             sx={{ py: 1.5 }}
           >
-            {isLoading ? 'Memproses...' : 'Masuk'}
+            {isSubmitting ? 'Memproses...' : 'Masuk'}
           </PrimaryButton>
         </Box>
       </Paper>

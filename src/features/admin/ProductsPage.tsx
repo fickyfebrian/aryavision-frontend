@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
-import { forwardRef } from 'react';
+import { useState, forwardRef } from 'react';
 import { NumericFormat, type NumericFormatProps } from 'react-number-format';
-
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -33,12 +31,14 @@ import Select from '@mui/material/Select';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { SearchInput } from '@/components/ui';
 
-import { productService } from '@/services/product.service';
 import type { Product } from '@/features/product/types';
 import { ProductFormModal } from './components/ProductFormModal';
 import { formatCurrency } from '@/utils/formatters';
 import { ClusterBadge } from '@/features/product/components/ClusterBadge';
 
+import { useAdminProducts } from './hooks/use-admin-products';
+import { useCreateProduct, useUpdateProduct, useDeleteProduct } from './hooks/use-product-mutations';
+import type { ProductFormValues } from './schemas/product-form.schema';
 
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -70,11 +70,7 @@ const NumericFormatCustom = forwardRef<NumericFormatProps, CustomProps>(
 );
 
 export const ProductsPage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
   
   // Toast State
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
@@ -102,36 +98,29 @@ export const ProductsPage = () => {
   // Modals
   const [formOpen, setFormOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const res = await productService.getProducts({
-        page,
-        limit: 10,
-        search: activeSearch || undefined,
-        cluster: activeCluster,
-        min_price: activeMinPrice,
-        max_price: activeMaxPrice,
-        min_rating: activeMinRating,
-        max_rating: activeMaxRating,
-      });
-      
-      setProducts(res.items);
-      setTotal(res.total_pages);
-    } catch (err) {
-      showToast('Gagal memuat daftar produk', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Queries and Mutations
+  const { data: queryData, isLoading } = useAdminProducts({
+    page,
+    limit: 10,
+    search: activeSearch || undefined,
+    cluster: activeCluster,
+    min_price: activeMinPrice,
+    max_price: activeMaxPrice,
+    min_rating: activeMinRating,
+    max_rating: activeMaxRating,
+  });
 
-  useEffect(() => {
-    fetchProducts();
-  }, [page, activeSearch, activeCluster, activeMinPrice, activeMaxPrice, activeMinRating, activeMaxRating]);
+  const createMutation = useCreateProduct();
+  const updateMutation = useUpdateProduct();
+  const deleteMutation = useDeleteProduct();
+
+  const isActionLoading = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+
+  const products = queryData?.items || [];
+  const total = queryData?.total_pages || 0;
 
   const handleApplyFilter = () => {
     // Harga Validation
@@ -210,37 +199,29 @@ export const ProductsPage = () => {
     setDeleteOpen(true);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: ProductFormValues) => {
     try {
-      setActionLoading(true);
       if (selectedProduct) {
-        await productService.updateProduct(selectedProduct.id, data);
+        await updateMutation.mutateAsync({ id: selectedProduct.id, data });
         showToast('Produk berhasil diperbarui.', 'success');
       } else {
-        await productService.createProduct(data);
+        await createMutation.mutateAsync(data);
         showToast('Produk berhasil ditambahkan.', 'success');
       }
       setFormOpen(false);
-      fetchProducts();
     } catch (err: any) {
       showToast(selectedProduct ? 'Gagal memperbarui produk.' : 'Gagal menambahkan produk.', 'error');
-    } finally {
-      setActionLoading(false);
     }
   };
 
   const handleDelete = async () => {
     if (!productToDelete) return;
     try {
-      setActionLoading(true);
-      await productService.deleteProduct(productToDelete.id);
+      await deleteMutation.mutateAsync(productToDelete.id);
       showToast('Produk berhasil dihapus.', 'success');
       setDeleteOpen(false);
-      fetchProducts();
     } catch (err: any) {
       showToast('Gagal menghapus produk.', 'error');
-    } finally {
-      setActionLoading(false);
     }
   };
 
@@ -373,7 +354,7 @@ export const ProductsPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading ? (
+            {isLoading ? (
               <TableRow>
                 <TableCell colSpan={7} align="center" className="py-12">
                   <CircularProgress />
@@ -436,7 +417,7 @@ export const ProductsPage = () => {
         onClose={() => setFormOpen(false)} 
         onSubmit={handleSave}
         initialData={selectedProduct}
-        loading={actionLoading}
+        loading={isActionLoading}
       />
 
       {/* Delete Confirmation */}
@@ -446,9 +427,9 @@ export const ProductsPage = () => {
           Apakah Anda yakin ingin menghapus produk ini?
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteOpen(false)} disabled={actionLoading}>Batal</Button>
-          <Button onClick={handleDelete} color="error" variant="contained" disabled={actionLoading}>
-            {actionLoading ? 'Menghapus...' : 'Hapus'}
+          <Button onClick={() => setDeleteOpen(false)} disabled={isActionLoading}>Batal</Button>
+          <Button onClick={handleDelete} color="error" variant="contained" disabled={isActionLoading}>
+            {isActionLoading ? 'Menghapus...' : 'Hapus'}
           </Button>
         </DialogActions>
       </Dialog>
