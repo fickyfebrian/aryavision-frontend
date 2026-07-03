@@ -23,7 +23,7 @@ interface BackendProduct {
   description?: string;
   brand?: string;
   category?: string;
-  cluster?: number;
+  cluster?: number | string;
 }
 
 interface BackendPagination {
@@ -62,11 +62,11 @@ export const productService = {
     // Backend cluster mapping 
     // 0 = budget, 1 = mid-range, 2 = premium
     let cluster: ProductCluster = 'budget';
-    if (item.cluster === 1) {
+    if (item.cluster === 1 || item.cluster === 'Mid Range') {
       cluster = 'mid-range';
-    } else if (item.cluster === 2) {
+    } else if (item.cluster === 2 || item.cluster === 'Premium') {
       cluster = 'premium';
-    } else if (item.cluster === 0) {
+    } else if (item.cluster === 0 || item.cluster === 'Budget') {
       cluster = 'budget';
     }
     
