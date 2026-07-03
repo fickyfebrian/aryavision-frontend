@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { forwardRef } from 'react';
+import { NumericFormat, type NumericFormatProps } from 'react-number-format';
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -35,6 +38,36 @@ import type { Product } from '@/features/product/types';
 import { ProductFormModal } from './components/ProductFormModal';
 import { formatCurrency } from '@/utils/formatters';
 import { ClusterBadge } from '@/features/product/components/ClusterBadge';
+
+
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+
+const NumericFormatCustom = forwardRef<NumericFormatProps, CustomProps>(
+  function NumericFormatCustom(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <NumericFormat
+        {...other}
+        getInputRef={ref}
+        onValueChange={(values) => {
+          onChange({
+            target: {
+              name: props.name,
+              value: values.formattedValue,
+            },
+          });
+        }}
+        thousandSeparator="."
+        decimalSeparator=","
+        prefix="Rp "
+        allowNegative={false}
+      />
+    );
+  },
+);
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -105,8 +138,14 @@ export const ProductsPage = () => {
     let minPrice: number | undefined = undefined;
     let maxPrice: number | undefined = undefined;
     
-    if (draftMinPrice) minPrice = parseInt(draftMinPrice);
-    if (draftMaxPrice) maxPrice = parseInt(draftMaxPrice);
+    if (draftMinPrice) {
+      const val = parseInt(draftMinPrice.replace(/\D/g, ""));
+      if (!isNaN(val)) minPrice = val;
+    }
+    if (draftMaxPrice) {
+      const val = parseInt(draftMaxPrice.replace(/\D/g, ""));
+      if (!isNaN(val)) maxPrice = val;
+    }
     
     if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
       setPriceError('Min > Max');
@@ -275,21 +314,29 @@ export const ProductsPage = () => {
                 value={draftMinPrice}
                 onChange={(e) => setDraftMinPrice(e.target.value)}
                 label="Harga Minimum"
-                type="number"
                 size="small"
                 sx={{ minWidth: 150, flex: { sm: 1 } }}
                 error={!!priceError}
+                slotProps={{
+                  input: {
+                    inputComponent: NumericFormatCustom as any,
+                  },
+                }}
               />
               <TextField
                 name="maxPrice"
                 value={draftMaxPrice}
                 onChange={(e) => setDraftMaxPrice(e.target.value)}
                 label="Harga Maksimum"
-                type="number"
                 size="small"
                 sx={{ minWidth: 150, flex: { sm: 1 } }}
                 error={!!priceError}
                 helperText={priceError || " "}
+                slotProps={{
+                  input: {
+                    inputComponent: NumericFormatCustom as any,
+                  },
+                }}
               />
             </Stack>
             <Stack

@@ -44,6 +44,14 @@ interface BackendPaginatedResponse {
   };
 }
 
+export interface DashboardStats {
+  total_products: number;
+  total_brands: number;
+  budget_cluster: number;
+  mid_range_cluster: number;
+  premium_cluster: number;
+}
+
 export interface GetProductsParams {
   page?: number;
   limit?: number;
@@ -115,6 +123,12 @@ export const productService = {
       selectedProduct: productService._mapBackendProductToFrontend(response.data.data.selected_product),
       recommendations: response.data.data.recommendations.map(productService._mapBackendProductToFrontend)
     };
+  },
+
+
+  getDashboardStats: async (): Promise<DashboardStats> => {
+    const response = await axiosInstance.get<{ success: boolean; message: string; data: DashboardStats }>('/dashboard/stats');
+    return response.data.data;
   },
 
   // CMS Endpoints

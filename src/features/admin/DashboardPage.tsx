@@ -22,17 +22,13 @@ export const DashboardPage = () => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const res = await productService.getProducts({ limit: 100 });
-        const items = res.items;
-
-        const brands = new Set(items.map((p) => p.brand).filter(Boolean));
-
+        const res = await productService.getDashboardStats();
         setStats({
-          total: items.length,
-          brand: brands.size,
-          budget: items.filter((p) => p.cluster === "budget").length,
-          midRange: items.filter((p) => p.cluster === "mid-range").length,
-          premium: items.filter((p) => p.cluster === "premium").length,
+          total: res.total_products,
+          brand: res.total_brands,
+          budget: res.budget_cluster,
+          midRange: res.mid_range_cluster,
+          premium: res.premium_cluster,
         });
       } catch (err: any) {
         setError(err.message || "Gagal mengambil data statistik");
