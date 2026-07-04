@@ -15,6 +15,7 @@ export const SearchInput = ({ value, onChange, onClear, placeholder, className }
   return (
     <TextField
       variant="outlined"
+      fullWidth
       placeholder={placeholder}
       className={className}
       value={value || ''}

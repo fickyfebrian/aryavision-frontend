@@ -1,44 +1,48 @@
-import { useState, forwardRef } from 'react';
-import { NumericFormat, type NumericFormatProps } from 'react-number-format';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import Pagination from '@mui/material/Pagination';
-import CircularProgress from '@mui/material/CircularProgress';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
+import { useState, forwardRef } from "react";
+import { NumericFormat, type NumericFormatProps } from "react-number-format";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import Pagination from "@mui/material/Pagination";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
 
-import { Plus, Edit2, Trash2 } from 'lucide-react';
-import { SearchInput } from '@/components/ui';
+import { Plus, Edit2, Trash2 } from "lucide-react";
+import { SearchInput } from "@/components/ui";
 
-import type { Product } from '@/features/product/types';
-import { ProductFormModal } from './components/ProductFormModal';
-import { formatCurrency } from '@/utils/formatters';
-import { ClusterBadge } from '@/features/product/components/ClusterBadge';
+import type { Product } from "@/features/product/types";
+import { ProductFormModal } from "./components/ProductFormModal";
+import { formatCurrency } from "@/utils/formatters";
+import { ClusterBadge } from "@/features/product/components/ClusterBadge";
 
-import { useAdminProducts } from './hooks/use-admin-products';
-import { useCreateProduct, useUpdateProduct, useDeleteProduct } from './hooks/use-product-mutations';
-import type { ProductFormValues } from './schemas/product-form.schema';
+import { useAdminProducts } from "./hooks/use-admin-products";
+import {
+  useCreateProduct,
+  useUpdateProduct,
+  useDeleteProduct,
+} from "./hooks/use-product-mutations";
+import type { ProductFormValues } from "./schemas/product-form.schema";
 
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -71,29 +75,36 @@ const NumericFormatCustom = forwardRef<NumericFormatProps, CustomProps>(
 
 export const ProductsPage = () => {
   const [page, setPage] = useState(1);
-  
+
   // Toast State
-  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
-  const showToast = (message: string, severity: 'success' | 'error' = 'success') => {
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error",
+  });
+  const showToast = (
+    message: string,
+    severity: "success" | "error" = "success",
+  ) => {
     setToast({ open: true, message, severity });
   };
-  const handleCloseToast = () => setToast(prev => ({ ...prev, open: false }));
+  const handleCloseToast = () => setToast((prev) => ({ ...prev, open: false }));
 
   // Active Filter States
-  const [activeSearch, setActiveSearch] = useState('');
+  const [activeSearch, setActiveSearch] = useState("");
   const [activeCluster, setActiveCluster] = useState<number | undefined>();
   const [activeMinPrice, setActiveMinPrice] = useState<number | undefined>();
   const [activeMaxPrice, setActiveMaxPrice] = useState<number | undefined>();
   const [activeMinRating, setActiveMinRating] = useState<number | undefined>();
   const [activeMaxRating, setActiveMaxRating] = useState<number | undefined>();
-  
+
   // Draft Filter States
-  const [draftSearch, setDraftSearch] = useState('');
-  const [draftCluster, setDraftCluster] = useState('');
-  const [draftMinPrice, setDraftMinPrice] = useState('');
-  const [draftMaxPrice, setDraftMaxPrice] = useState('');
-  const [draftRating, setDraftRating] = useState('Semua Rating');
-  const [priceError, setPriceError] = useState('');
+  const [draftSearch, setDraftSearch] = useState("");
+  const [draftCluster, setDraftCluster] = useState("");
+  const [draftMinPrice, setDraftMinPrice] = useState("");
+  const [draftMaxPrice, setDraftMaxPrice] = useState("");
+  const [draftRating, setDraftRating] = useState("Semua Rating");
+  const [priceError, setPriceError] = useState("");
 
   // Modals
   const [formOpen, setFormOpen] = useState(false);
@@ -117,7 +128,10 @@ export const ProductsPage = () => {
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
 
-  const isActionLoading = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+  const isActionLoading =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
 
   const products = queryData?.items || [];
   const total = queryData?.total_pages || 0;
@@ -126,7 +140,7 @@ export const ProductsPage = () => {
     // Harga Validation
     let minPrice: number | undefined = undefined;
     let maxPrice: number | undefined = undefined;
-    
+
     if (draftMinPrice) {
       const val = parseInt(draftMinPrice.replace(/\D/g, ""));
       if (!isNaN(val)) minPrice = val;
@@ -135,28 +149,43 @@ export const ProductsPage = () => {
       const val = parseInt(draftMaxPrice.replace(/\D/g, ""));
       if (!isNaN(val)) maxPrice = val;
     }
-    
-    if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
-      setPriceError('Min > Max');
+
+    if (
+      minPrice !== undefined &&
+      maxPrice !== undefined &&
+      minPrice > maxPrice
+    ) {
+      setPriceError("Min > Max");
       return;
     }
-    setPriceError('');
+    setPriceError("");
 
     // Cluster mapping
     let clusterId: number | undefined = undefined;
-    if (draftCluster === 'budget') clusterId = 0;
-    if (draftCluster === 'mid-range') clusterId = 1;
-    if (draftCluster === 'premium') clusterId = 2;
+    if (draftCluster === "budget") clusterId = 0;
+    if (draftCluster === "mid-range") clusterId = 1;
+    if (draftCluster === "premium") clusterId = 2;
 
     // Rating mapping
     let minRating: number | undefined = undefined;
     let maxRating: number | undefined = undefined;
 
-    if (draftRating === '★★★★★') { minRating = 5; maxRating = 5; }
-    else if (draftRating === '★★★★☆') { minRating = 4; maxRating = 5; }
-    else if (draftRating === '★★★☆☆') { minRating = 3; maxRating = 4; }
-    else if (draftRating === '★★☆☆☆') { minRating = 2; maxRating = 3; }
-    else if (draftRating === '★☆☆☆☆') { minRating = 1; maxRating = 2; }
+    if (draftRating === "★★★★★") {
+      minRating = 5;
+      maxRating = 5;
+    } else if (draftRating === "★★★★☆") {
+      minRating = 4;
+      maxRating = 5;
+    } else if (draftRating === "★★★☆☆") {
+      minRating = 3;
+      maxRating = 4;
+    } else if (draftRating === "★★☆☆☆") {
+      minRating = 2;
+      maxRating = 3;
+    } else if (draftRating === "★☆☆☆☆") {
+      minRating = 1;
+      maxRating = 2;
+    }
 
     setActiveSearch(draftSearch);
     setActiveCluster(clusterId);
@@ -168,14 +197,14 @@ export const ProductsPage = () => {
   };
 
   const handleResetFilter = () => {
-    setDraftSearch('');
-    setDraftCluster('');
-    setDraftMinPrice('');
-    setDraftMaxPrice('');
-    setDraftRating('Semua Rating');
-    setPriceError('');
+    setDraftSearch("");
+    setDraftCluster("");
+    setDraftMinPrice("");
+    setDraftMaxPrice("");
+    setDraftRating("Semua Rating");
+    setPriceError("");
 
-    setActiveSearch('');
+    setActiveSearch("");
     setActiveCluster(undefined);
     setActiveMinPrice(undefined);
     setActiveMaxPrice(undefined);
@@ -203,14 +232,19 @@ export const ProductsPage = () => {
     try {
       if (selectedProduct) {
         await updateMutation.mutateAsync({ id: selectedProduct.id, data });
-        showToast('Produk berhasil diperbarui.', 'success');
+        showToast("Produk berhasil diperbarui.", "success");
       } else {
         await createMutation.mutateAsync(data);
-        showToast('Produk berhasil ditambahkan.', 'success');
+        showToast("Produk berhasil ditambahkan.", "success");
       }
       setFormOpen(false);
     } catch (err: any) {
-      showToast(selectedProduct ? 'Gagal memperbarui produk.' : 'Gagal menambahkan produk.', 'error');
+      showToast(
+        selectedProduct
+          ? "Gagal memperbarui produk."
+          : "Gagal menambahkan produk.",
+        "error",
+      );
     }
   };
 
@@ -218,24 +252,17 @@ export const ProductsPage = () => {
     if (!productToDelete) return;
     try {
       await deleteMutation.mutateAsync(productToDelete.id);
-      showToast('Produk berhasil dihapus.', 'success');
+      showToast("Produk berhasil dihapus.", "success");
       setDeleteOpen(false);
     } catch (err: any) {
-      showToast('Gagal menghapus produk.', 'error');
+      showToast("Gagal menghapus produk.", "error");
     }
   };
 
   return (
     <Box>
-      <Box className="flex items-center justify-between mb-6">
-        <Typography variant="h4" className="font-bold text-gray-900">Manage Products</Typography>
-        <Button variant="contained" startIcon={<Plus size={18} />} onClick={handleOpenAdd}>
-          Add Product
-        </Button>
-      </Box>
-
       {/* Filters (Matching CatalogPage UX) */}
-      <Card className="mb-6 shadow-sm border border-gray-200">
+      <Card className="mb-6 shadow-sm border border-gray-200 mt-2">
         <Stack
           component="form"
           spacing={2}
@@ -245,12 +272,33 @@ export const ProductsPage = () => {
             handleApplyFilter();
           }}
         >
-          <SearchInput
-            placeholder="Cari CCTV..."
-            value={draftSearch}
-            onChange={setDraftSearch}
-            onClear={() => setDraftSearch("")}
-          />
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            sx={{ alignItems: "center" }}
+          >
+            <Box sx={{ flexGrow: 1, width: "100%" }}>
+              <SearchInput
+                placeholder="Cari CCTV..."
+                value={draftSearch}
+                onChange={setDraftSearch}
+                onClear={() => setDraftSearch("")}
+              />
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<Plus size={18} />}
+              onClick={handleOpenAdd}
+              sx={{
+                height: 40,
+                whiteSpace: "nowrap",
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              Add Product
+            </Button>
+          </Stack>
+
           <Divider sx={{ borderStyle: "dashed" }} />
           <Stack
             direction={{ xs: "column", md: "row" }}
@@ -328,10 +376,21 @@ export const ProductsPage = () => {
                 "& > *": { flex: { xs: 1, md: "0 0 auto" } },
               }}
             >
-              <Button type="button" variant="outlined" onClick={handleResetFilter} sx={{ height: 40 }}>
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={handleResetFilter}
+                sx={{ height: 40 }}
+              >
                 Reset
               </Button>
-              <Button type="submit" variant="contained" color="primary" disableElevation sx={{ height: 40 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disableElevation
+                sx={{ height: 40 }}
+              >
                 Terapkan Filter
               </Button>
             </Stack>
@@ -362,7 +421,11 @@ export const ProductsPage = () => {
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} align="center" className="py-12 text-gray-500">
+                <TableCell
+                  colSpan={7}
+                  align="center"
+                  className="py-12 text-gray-500"
+                >
                   No products found.
                 </TableCell>
               </TableRow>
@@ -370,25 +433,52 @@ export const ProductsPage = () => {
               products.map((row) => (
                 <TableRow key={row.id} className="hover:bg-gray-50">
                   <TableCell>
-                    <img src={row.imageUrl} alt={row.name} className="w-12 h-12 object-cover rounded border" />
+                    <img
+                      src={row.imageUrl}
+                      alt={row.name}
+                      className="w-12 h-12 object-cover rounded border"
+                    />
                   </TableCell>
-                  <TableCell className="max-w-[250px] truncate" title={row.name}>
-                    <Typography variant="body2" className="font-medium">{row.name}</Typography>
+                  <TableCell
+                    className="max-w-[250px] truncate"
+                    title={row.name}
+                  >
+                    <Typography variant="body2" className="font-medium">
+                      {row.name}
+                    </Typography>
                   </TableCell>
-                  <TableCell>{row.brand || '-'}</TableCell>
-                  <TableCell className="font-medium text-blue-600">{formatCurrency(row.price)}</TableCell>
+                  <TableCell>{row.brand || "-"}</TableCell>
+                  <TableCell className="font-medium text-blue-600">
+                    {formatCurrency(row.price)}
+                  </TableCell>
                   <TableCell>
-                    <Typography variant="caption" sx={{ display: 'block' }}>⭐ {row.rating}</Typography>
-                    <Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>Sold: {row.soldCount}</Typography>
+                    <Typography variant="caption" sx={{ display: "block" }}>
+                      ⭐ {row.rating}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="textSecondary"
+                      sx={{ display: "block" }}
+                    >
+                      Sold: {row.soldCount}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <ClusterBadge cluster={row.cluster} />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" color="primary" onClick={() => handleOpenEdit(row)}>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => handleOpenEdit(row)}
+                    >
                       <Edit2 size={16} />
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleOpenDelete(row)}>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleOpenDelete(row)}
+                    >
                       <Trash2 size={16} />
                     </IconButton>
                   </TableCell>
@@ -402,19 +492,19 @@ export const ProductsPage = () => {
       {/* Pagination */}
       {total > 1 && (
         <Box className="flex justify-center mt-6">
-          <Pagination 
-            count={total} 
-            page={page} 
-            onChange={(_, val) => setPage(val)} 
-            color="primary" 
+          <Pagination
+            count={total}
+            page={page}
+            onChange={(_, val) => setPage(val)}
+            color="primary"
           />
         </Box>
       )}
 
       {/* Form Modal */}
-      <ProductFormModal 
-        open={formOpen} 
-        onClose={() => setFormOpen(false)} 
+      <ProductFormModal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
         onSubmit={handleSave}
         initialData={selectedProduct}
         loading={isActionLoading}
@@ -427,16 +517,35 @@ export const ProductsPage = () => {
           Apakah Anda yakin ingin menghapus produk ini?
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteOpen(false)} disabled={isActionLoading}>Batal</Button>
-          <Button onClick={handleDelete} color="error" variant="contained" disabled={isActionLoading}>
-            {isActionLoading ? 'Menghapus...' : 'Hapus'}
+          <Button
+            onClick={() => setDeleteOpen(false)}
+            disabled={isActionLoading}
+          >
+            Batal
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="error"
+            variant="contained"
+            disabled={isActionLoading}
+          >
+            {isActionLoading ? "Menghapus..." : "Hapus"}
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Toast Notification */}
-      <Snackbar open={toast.open} autoHideDuration={4000} onClose={handleCloseToast} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert onClose={handleCloseToast} severity={toast.severity} sx={{ width: '100%' }}>
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={4000}
+        onClose={handleCloseToast}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseToast}
+          severity={toast.severity}
+          sx={{ width: "100%" }}
+        >
           {toast.message}
         </Alert>
       </Snackbar>

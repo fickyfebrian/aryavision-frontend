@@ -61,10 +61,6 @@ export const DashboardPage = () => {
 
   return (
     <Box>
-      <Typography variant="h4" className="mb-6 font-bold text-gray-900">
-        Dashboard
-      </Typography>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {statCards.map((stat, i) => (
           <div key={i}>
