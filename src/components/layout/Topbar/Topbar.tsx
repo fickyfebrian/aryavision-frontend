@@ -5,11 +5,15 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import { useState, useEffect } from "react";
+import Button from "@mui/material/Button";
+import { RetrainModelDialog } from "@/features/admin/components/RetrainModelDialog";
 
 export const Topbar = () => {
   const location = useLocation();
   const path = location.pathname;
   const [time, setTime] = useState(new Date());
+  const [retrainOpen, setRetrainOpen] = useState(false);
+  const [lastRetrained, setLastRetrained] = useState<string | null>(localStorage.getItem('lastRetrained'));
 
   let title = "Dashboard";
   let subtitle = "Monitor overall system performance.";
@@ -75,14 +79,52 @@ export const Topbar = () => {
 
         {/* Right Side: Admin Info & Actions */}
         <Box className="flex items-center gap-6 self-center">
-          <Typography variant="body2" className="text-gray-500 hidden md:block">
-            {currentDate}
-          </Typography>
-          <Typography variant="body2" className="text-gray-500">
-            {currentTime}
-          </Typography>
+          {/* Recommendation Engine Widget */}
+          <Box className="hidden lg:flex items-center gap-4 bg-gray-50 border border-gray-200 rounded-lg py-1.5 px-3">
+            <Box className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                <Typography variant="caption" className="font-semibold text-gray-700">
+                  Engine Ready
+                </Typography>
+                <Typography variant="caption" className="text-gray-500 px-1">
+                  |
+                </Typography>
+                <Typography variant="caption" className="text-gray-500">
+                  3 Clusters
+                </Typography>
+              </div>
+              <Typography variant="caption" className="text-gray-400 text-[10px]">
+                Last (local): {lastRetrained ? new Date(lastRetrained).toLocaleTimeString('id-ID') : 'Never'}
+              </Typography>
+            </Box>
+            <Button
+              size="small"
+              variant="outlined"
+              color="primary"
+              className="py-1 px-3 text-xs bg-white"
+              onClick={() => setRetrainOpen(true)}
+            >
+              🧠 Retrain
+            </Button>
+          </Box>
+
+          <Box className="flex items-center gap-4 border-l border-gray-200 pl-6">
+            <Typography variant="body2" className="text-gray-500 hidden md:block">
+              {currentDate}
+            </Typography>
+            <Typography variant="body2" className="text-gray-500 w-[60px]">
+              {currentTime}
+            </Typography>
+          </Box>
         </Box>
       </Toolbar>
+
+      <RetrainModelDialog
+        open={retrainOpen}
+        onClose={() => setRetrainOpen(false)}
+        onSuccessCallback={() => setLastRetrained(localStorage.getItem('lastRetrained'))}
+      />
     </AppBar>
   );
 };
