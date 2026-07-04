@@ -24,6 +24,7 @@ interface BackendProduct {
   brand?: string;
   category?: string;
   cluster?: number | string;
+  updated_at?: string;
 }
 
 interface BackendPagination {
@@ -86,7 +87,8 @@ export const productService = {
       description: item.description,
       cluster,
       brand: item.brand,
-      category: item.category
+      category: item.category,
+      updatedAt: item.updated_at
     };
   },
 

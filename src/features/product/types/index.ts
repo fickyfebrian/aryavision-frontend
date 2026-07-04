@@ -11,6 +11,7 @@ export interface Product {
   cluster: ProductCluster;
   brand?: string;
   category?: string;
+  updatedAt?: string;
 }
 
 export interface RecommendationProduct extends Product {
