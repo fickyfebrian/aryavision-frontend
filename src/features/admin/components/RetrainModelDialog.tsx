@@ -15,12 +15,11 @@ import { useRetrainModel } from '../hooks/use-retrain-model';
 interface RetrainModelDialogProps {
   open: boolean;
   onClose: () => void;
-  onSuccessCallback?: () => void;
 }
 
 type DialogStep = 'confirm' | 'clustering' | 'cbf' | 'success' | 'error';
 
-export const RetrainModelDialog = ({ open, onClose, onSuccessCallback }: RetrainModelDialogProps) => {
+export const RetrainModelDialog = ({ open, onClose }: RetrainModelDialogProps) => {
   const [step, setStep] = useState<DialogStep>('confirm');
   const [errorMessage, setErrorMessage] = useState('');
   const [result, setResult] = useState<RetrainResult | null>(null);
@@ -47,10 +46,6 @@ export const RetrainModelDialog = ({ open, onClose, onSuccessCallback }: Retrain
       
       setResult(res);
       setStep('success');
-      
-      if (onSuccessCallback) {
-        onSuccessCallback();
-      }
     } catch (error: any) {
       setStep('error');
       setErrorMessage(error?.response?.data?.message || error.message || 'An unexpected error occurred.');

@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { MLClusteringResponse, MLCBFResponse } from '../api/ml.api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { MLClusteringResponse, MLCBFResponse, MLStatusResponse } from '../api/ml.api';
 
 import { mlApi } from '../api/ml.api';
 
@@ -8,6 +8,14 @@ export interface RetrainResult {
   cbf: MLCBFResponse;
   durationMs: number;
 }
+
+export const useMLStatus = () => {
+  return useQuery({
+    queryKey: ['ml', 'status'],
+    queryFn: mlApi.getStatus,
+    refetchInterval: 30000, // Polling setiap 30 detik untuk berjaga-jaga
+  });
+};
 
 export const useRetrainModel = () => {
   const queryClient = useQueryClient();
@@ -37,9 +45,7 @@ export const useRetrainModel = () => {
       // Invalidate relevant query keys
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
-      
-      // Update local storage to persist the Last Retrained timestamp across reloads
-      localStorage.setItem('lastRetrained', new Date().toISOString());
+      queryClient.invalidateQueries({ queryKey: ['ml', 'status'] });
     },
   });
 };

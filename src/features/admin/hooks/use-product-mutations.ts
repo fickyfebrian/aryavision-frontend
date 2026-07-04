@@ -10,6 +10,8 @@ export const useCreateProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      // Invalidate ML status agar topbar langsung mendeteksi needs_retrain = true
+      queryClient.invalidateQueries({ queryKey: ['ml', 'status'] });
     },
   });
 };
@@ -23,6 +25,8 @@ export const useUpdateProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      // Invalidate ML status agar topbar langsung mendeteksi needs_retrain = true
+      queryClient.invalidateQueries({ queryKey: ['ml', 'status'] });
     },
   });
 };
@@ -35,6 +39,8 @@ export const useDeleteProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      // Invalidate ML status agar topbar langsung mendeteksi needs_retrain = true
+      queryClient.invalidateQueries({ queryKey: ['ml', 'status'] });
     },
   });
 };
