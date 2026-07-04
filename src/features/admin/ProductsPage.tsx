@@ -33,7 +33,7 @@ import { SearchInput } from "@/components/ui";
 
 import type { Product } from "@/features/product/types";
 import { ProductFormModal } from "./components/ProductFormModal";
-import { formatCurrency, formatDate } from "@/utils/formatters";
+import { formatCurrency } from "@/utils/formatters";
 import { ClusterBadge } from "@/features/product/components/ClusterBadge";
 
 import { useAdminProducts } from "./hooks/use-admin-products";
@@ -408,21 +408,20 @@ export const ProductsPage = () => {
               <TableCell>Price</TableCell>
               <TableCell>Stats</TableCell>
               <TableCell>Cluster</TableCell>
-              <TableCell>Terakhir Update</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} align="center" className="py-12">
+                <TableCell colSpan={6} align="center" className="py-12">
                   <CircularProgress />
                 </TableCell>
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={6}
                   align="center"
                   className="py-12 text-gray-500"
                 >
@@ -464,11 +463,6 @@ export const ProductsPage = () => {
                   </TableCell>
                   <TableCell>
                     <ClusterBadge cluster={row.cluster} />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" color="textSecondary" sx={{ whiteSpace: "nowrap" }}>
-                      {formatDate(row.updatedAt)}
-                    </Typography>
                   </TableCell>
                   <TableCell align="right">
                     <IconButton
@@ -543,7 +537,7 @@ export const ProductsPage = () => {
         open={toast.open}
         autoHideDuration={4000}
         onClose={handleCloseToast}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert
           onClose={handleCloseToast}
