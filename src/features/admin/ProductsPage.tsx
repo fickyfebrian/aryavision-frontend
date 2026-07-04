@@ -405,7 +405,6 @@ export const ProductsPage = () => {
             <TableRow>
               <TableCell>Image</TableCell>
               <TableCell>Product Name</TableCell>
-              <TableCell>Brand</TableCell>
               <TableCell>Price</TableCell>
               <TableCell>Stats</TableCell>
               <TableCell>Cluster</TableCell>
@@ -416,14 +415,14 @@ export const ProductsPage = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" className="py-12">
+                <TableCell colSpan={7} align="center" className="py-12">
                   <CircularProgress />
                 </TableCell>
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={7}
                   align="center"
                   className="py-12 text-gray-500"
                 >
@@ -448,7 +447,6 @@ export const ProductsPage = () => {
                       {row.name}
                     </Typography>
                   </TableCell>
-                  <TableCell>{row.brand || "-"}</TableCell>
                   <TableCell className="font-medium text-blue-600">
                     {formatCurrency(row.price)}
                   </TableCell>
