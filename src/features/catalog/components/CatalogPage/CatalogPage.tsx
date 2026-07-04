@@ -84,7 +84,7 @@ export const CatalogPage = () => {
 
   // Pagination State
   const [page, setPage] = useState(1);
-  const [limit] = useState(12);
+  const [limit, setLimit] = useState(20); // Default ke 20 sesuai request
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [sortParam, setSortParam] = useState("created_at-desc");
@@ -251,6 +251,13 @@ export const CatalogPage = () => {
     value: number,
   ) => {
     setPage(value);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handler untuk mengubah jumlah item per halaman (Page Size)
+  const handleLimitChange = (event: any) => {
+    setLimit(event.target.value);
+    setPage(1); // Reset ke halaman pertama setiap kali ukuran halaman berubah
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -567,9 +574,28 @@ export const CatalogPage = () => {
             >
               <Typography variant="body2" color="text.secondary">
                 {totalItems > 0
-                  ? `Menampilkan ${(page - 1) * limit + 1} - ${Math.min(page * limit, totalItems)} dari ${totalItems} produk`
+                  ? limit === 10000
+                    ? `Menampilkan ${totalItems} dari ${totalItems} produk`
+                    : `Menampilkan ${(page - 1) * limit + 1} - ${Math.min(page * limit, totalItems)} dari ${totalItems} produk`
                   : "Tidak ada produk untuk ditampilkan"}
               </Typography>
+
+              {/* Pemilih Ukuran Halaman (Page Size) */}
+              <FormControl size="small" sx={{ minWidth: 140 }}>
+                <Select
+                  value={limit}
+                  onChange={handleLimitChange}
+                  displayEmpty
+                  sx={{ fontSize: "0.875rem", bgcolor: "background.paper" }}
+                >
+                  <MenuItem value={10}>10 per halaman</MenuItem>
+                  <MenuItem value={20}>20 per halaman</MenuItem>
+                  <MenuItem value={30}>30 per halaman</MenuItem>
+                  <MenuItem value={40}>40 per halaman</MenuItem>
+                  <MenuItem value={50}>50 per halaman</MenuItem>
+                  <MenuItem value={100}>100 per halaman</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
 
             {isLoading ? (
