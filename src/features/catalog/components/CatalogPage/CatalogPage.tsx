@@ -26,21 +26,15 @@ import {
   RecommendationEmpty,
 } from "@/features/recommendation/components";
 import { useNavigate, useLocation } from "react-router-dom";
-import { productService } from "@/services/product.service";
 import type { Product } from "@/features/product/types";
+import { useCatalogProducts } from "../../hooks/use-catalog-products";
+import { useCatalogRecommendations } from "../../hooks/use-catalog-recommendations";
 
 const SESSION_KEY = "aryavision_recommendation_state";
 
-const getSavedState = () => {
+const getSavedReferenceId = () => {
   const saved = sessionStorage.getItem(SESSION_KEY);
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return null;
-    }
-  }
-  return null;
+  return saved || null;
 };
 
 interface CustomProps {
@@ -77,16 +71,9 @@ export const CatalogPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // API States
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   // Pagination State
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20); // Default ke 20 sesuai request
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
+  const [limit, setLimit] = useState(20);
   const [sortParam, setSortParam] = useState("created_at-desc");
 
   // Active Filter States (Used for API Request)
@@ -107,61 +94,40 @@ export const CatalogPage = () => {
 
   // Recommendation States
   const [referenceProductId, setReferenceProductId] = useState<string | null>(
-    () => getSavedState()?.referenceProductId || null,
+    () => getSavedReferenceId(),
   );
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(
-    () => getSavedState()?.selectedProduct || null,
-  );
-  const [recommendations, setRecommendations] = useState<Product[]>(
-    () => getSavedState()?.recommendations || [],
-  );
-  const [isRecLoading, setIsRecLoading] = useState(false);
-  const [recError, setRecError] = useState<string | null>(null);
 
-  const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [sort, order] = sortParam.split("-");
-
-      const data = await productService.getProducts({
-        page,
-        limit,
-        search: activeSearch || undefined,
-        cluster: activeCluster,
-        min_price: activeMinPrice,
-        max_price: activeMaxPrice,
-        min_rating: activeMinRating,
-        max_rating: activeMaxRating,
-        sort,
-        order: order as "asc" | "desc",
-      });
-      setProducts(data.items);
-      setTotalPages(data.total_pages);
-      setTotalItems(data.total);
-    } catch {
-      setError(
-        "Terjadi kesalahan saat memuat katalog produk. Silakan coba lagi.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
+  // --- REACT QUERY FETCHING ---
+  const {
+    data: productsData,
+    isLoading: isProductsLoading,
+    isError: isProductsError,
+    refetch: refetchProducts,
+  } = useCatalogProducts({
     page,
     limit,
-    activeSearch,
+    search: activeSearch,
+    cluster: activeCluster,
+    minPrice: activeMinPrice,
+    maxPrice: activeMaxPrice,
+    minRating: activeMinRating,
+    maxRating: activeMaxRating,
     sortParam,
-    activeCluster,
-    activeMinPrice,
-    activeMaxPrice,
-    activeMinRating,
-    activeMaxRating,
-  ]);
+  });
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchProducts();
-  }, [fetchProducts]);
+  const products = productsData?.items || [];
+  const totalPages = productsData?.total_pages || 1;
+  const totalItems = productsData?.total || 0;
+
+  const {
+    data: recData,
+    isLoading: isRecLoading,
+    isError: isRecError,
+    refetch: refetchRecs,
+  } = useCatalogRecommendations(referenceProductId);
+
+  const selectedProduct = recData?.selectedProduct || null;
+  const recommendations = recData?.recommendations?.slice(0, 3) || [];
 
   const handleApplyFilter = () => {
     // Validasi Harga
@@ -255,6 +221,7 @@ export const CatalogPage = () => {
   };
 
   // Handler untuk mengubah jumlah item per halaman (Page Size)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLimitChange = (event: any) => {
     setLimit(event.target.value);
     setPage(1); // Reset ke halaman pertama setiap kali ukuran halaman berubah
@@ -270,41 +237,19 @@ export const CatalogPage = () => {
 
   const handleClearReference = useCallback(() => {
     setReferenceProductId(null);
-    setSelectedProduct(null);
-    setRecommendations([]);
     sessionStorage.removeItem(SESSION_KEY);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleSelectReference = useCallback(
-    async (product: Product) => {
-      if (referenceProductId === product.id) {
+    (product: Product) => {
+      const idStr = String(product.id);
+      if (referenceProductId === idStr) {
         handleClearReference();
         return;
       }
-      setReferenceProductId(product.id);
-      setIsRecLoading(true);
-      setRecError(null);
-      try {
-        const { selectedProduct: apiSelected, recommendations: apiRecs } =
-          await productService.getRecommendations(product.id);
-        const newRecs = apiRecs.slice(0, 3);
-        setSelectedProduct(apiSelected);
-        setRecommendations(newRecs);
-
-        sessionStorage.setItem(
-          SESSION_KEY,
-          JSON.stringify({
-            referenceProductId: product.id,
-            selectedProduct: apiSelected,
-            recommendations: newRecs,
-          }),
-        );
-      } catch {
-        setRecError("Gagal memuat rekomendasi. Silakan coba lagi.");
-      } finally {
-        setIsRecLoading(false);
-      }
+      setReferenceProductId(idStr);
+      sessionStorage.setItem(SESSION_KEY, idStr);
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
     [referenceProductId, handleClearReference],
@@ -314,15 +259,15 @@ export const CatalogPage = () => {
     const stateRefId = location.state?.referenceProductId;
     if (stateRefId) {
       navigate(location.pathname, { replace: true, state: {} });
-      if (referenceProductId !== stateRefId) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        handleSelectReference({ id: stateRefId } as Product);
+      const idStr = String(stateRefId);
+      if (referenceProductId !== idStr) {
+        // Mock product object with just ID to trigger selection
+        handleSelectReference({ id: stateRefId } as unknown as Product);
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state?.referenceProductId]);
+  }, [location.state?.referenceProductId, navigate, location.pathname, referenceProductId, handleSelectReference]);
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
@@ -541,13 +486,11 @@ export const CatalogPage = () => {
 
             {isRecLoading ? (
               <RecommendationSkeleton />
-            ) : recError ? (
+            ) : isRecError ? (
               <ErrorState
                 title="Gagal Memuat Rekomendasi"
-                description={recError}
-                onRetry={() =>
-                  handleSelectReference({ id: referenceProductId } as Product)
-                }
+                description={"Terjadi kesalahan saat memuat rekomendasi."}
+                onRetry={() => refetchRecs()}
               />
             ) : recommendations.length === 0 ? (
               <RecommendationEmpty />
@@ -598,13 +541,13 @@ export const CatalogPage = () => {
               </FormControl>
             </Box>
 
-            {isLoading ? (
+            {isProductsLoading ? (
               <ProductGridSkeleton />
-            ) : error ? (
+            ) : isProductsError ? (
               <ErrorState
                 title="Gagal Memuat Produk"
-                description={error}
-                onRetry={fetchProducts}
+                description={"Terjadi kesalahan saat memuat katalog produk. Silakan coba lagi."}
+                onRetry={() => refetchProducts()}
               />
             ) : products.length === 0 ? (
               <EmptyState

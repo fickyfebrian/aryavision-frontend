@@ -7,7 +7,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
-import { LayoutDashboard, Package, Camera } from 'lucide-react';
+import { LayoutDashboard, Package, Camera, LogOut } from 'lucide-react';
+import { authService } from '@/services/auth.service';
 
 const DRAWER_WIDTH = 256;
 
@@ -67,6 +68,29 @@ export const Sidebar = () => {
             </ListItem>
           ))}
         </List>
+      </Box>
+
+      {/* Logout Button */}
+      <Box className="p-4 border-t border-gray-200">
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => authService.logout()}
+            sx={{
+              borderRadius: '8px',
+              color: 'error.main',
+              '&:hover': {
+                backgroundColor: 'error.lighter',
+              },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 40, color: 'error.main' }}>
+              <LogOut size={20} />
+            </ListItemIcon>
+            <ListItemText
+              primary={<Typography sx={{ fontWeight: 500 }}>Logout</Typography>}
+            />
+          </ListItemButton>
+        </ListItem>
       </Box>
     </Drawer>
   );
