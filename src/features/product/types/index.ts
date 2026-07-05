@@ -11,6 +11,7 @@ export interface Product {
   cluster: ProductCluster;
   brand?: string;
   category?: string;
+  productUrl?: string;
   updatedAt?: string;
 }
 

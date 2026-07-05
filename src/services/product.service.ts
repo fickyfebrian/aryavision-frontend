@@ -23,6 +23,7 @@ interface BackendProduct {
   description?: string;
   brand?: string;
   category?: string;
+  product_url?: string;
   cluster?: number | string;
   updated_at?: string;
 }
@@ -88,6 +89,7 @@ export const productService = {
       cluster,
       brand: item.brand,
       category: item.category,
+      productUrl: item.product_url,
       updatedAt: item.updated_at
     };
   },

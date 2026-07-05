@@ -62,7 +62,7 @@ export const ProductFormModal = ({
           rating: initialData.rating || 0,
           sold: initialData.soldCount || 0,
           image_url: initialData.imageUrl || "",
-          product_url: "",
+          product_url: initialData.productUrl || "",
           description: initialData.description || "",
         });
       } else {
