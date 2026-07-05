@@ -405,7 +405,15 @@ export const ProductsPage = () => {
         className="shadow-sm rounded-lg overflow-hidden"
       >
         <Table>
-          <TableHead sx={{ '& .MuiTableCell-head': { bgcolor: 'primary.main', color: 'primary.contrastText', fontWeight: '600' } }}>
+          <TableHead
+            sx={{
+              "& .MuiTableCell-head": {
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                fontWeight: "600",
+              },
+            }}
+          >
             <TableRow>
               <TableCell>Image</TableCell>
               <TableCell>Product Name</TableCell>
@@ -439,7 +447,7 @@ export const ProductsPage = () => {
                     <img
                       src={row.imageUrl}
                       alt={row.name}
-                      className="w-12 h-12 object-cover rounded border"
+                      className="w-12 h-12 object-cover rounded"
                     />
                   </TableCell>
                   <TableCell
