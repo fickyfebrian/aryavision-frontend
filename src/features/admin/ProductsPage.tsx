@@ -399,9 +399,13 @@ export const ProductsPage = () => {
       </Card>
 
       {/* Table */}
-      <TableContainer component={Paper} className="shadow-sm border">
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        className="shadow-sm rounded-lg overflow-hidden"
+      >
         <Table>
-          <TableHead className="bg-gray-50">
+          <TableHead sx={{ '& .MuiTableCell-head': { bgcolor: 'primary.main', color: 'primary.contrastText', fontWeight: '600' } }}>
             <TableRow>
               <TableCell>Image</TableCell>
               <TableCell>Product Name</TableCell>
