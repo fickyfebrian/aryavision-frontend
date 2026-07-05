@@ -8,10 +8,12 @@ import { ProductDetailPage } from "../features/product";
 import { LoginPage } from "../features/auth";
 import { DashboardPage, ProductsPage } from "../features/admin";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { ScrollToTop } from "../components/common";
 
 export const AppRouter = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Public Routes */}
         <Route element={<AppLayout />}>

@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { AppContainer } from "../../ui/AppContainer";
-import logo from "@/assets/logo/Logo.jpg";
+import logo from "@/assets/logo/logo-aryavision.png";
 
 export const Navbar = () => {
   const location = useLocation();
@@ -46,10 +46,10 @@ export const Navbar = () => {
             */}
             <Box
               component="img"
-              src={logo} // Ganti path/import ini jika asset logo sudah ada
+              src={logo}
               alt="AryaVision Logo"
               sx={{
-                height: 32,
+                height: 42,
                 width: "auto",
               }}
               onError={(e) => {

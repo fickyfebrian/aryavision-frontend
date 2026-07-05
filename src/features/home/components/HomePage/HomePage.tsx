@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   HeroSection,
   BenefitsSection,
@@ -5,17 +6,19 @@ import {
   ClusterOverviewSection,
   PopularProductsSection,
   CtaSection,
-} from '../../../../components/sections';
+} from "../../../../components/sections";
 
 export const HomePage = () => {
+  const navigate = useNavigate();
+
   return (
     <main>
-      <HeroSection />
+      <HeroSection onPrimaryClick={() => navigate("/catalog")} />
       <BenefitsSection />
       <HowItWorksSection />
       <ClusterOverviewSection />
       <PopularProductsSection />
-      <CtaSection />
+      <CtaSection onCtaClick={() => navigate("/catalog")} />
     </main>
   );
 };
