@@ -25,10 +25,13 @@ import {
   RecommendationSkeleton,
   RecommendationEmpty,
 } from "@/features/recommendation/components";
+import { PictureAsPdf, TableView } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { Product } from "@/features/product/types";
 import { useCatalogProducts } from "../../hooks/use-catalog-products";
 import { useCatalogRecommendations } from "../../hooks/use-catalog-recommendations";
+import { exportRecommendationToPDF } from "../../utils/export-pdf";
+import { exportRecommendationToExcel } from "../../utils/export-excel";
 
 const SESSION_KEY = "aryavision_recommendation_state";
 
@@ -267,7 +270,13 @@ export const CatalogPage = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
-  }, [location.state?.referenceProductId, navigate, location.pathname, referenceProductId, handleSelectReference]);
+  }, [
+    location.state?.referenceProductId,
+    navigate,
+    location.pathname,
+    referenceProductId,
+    handleSelectReference,
+  ]);
 
   return (
     <Box sx={{ py: { xs: 4, md: 8 } }}>
@@ -448,19 +457,62 @@ export const CatalogPage = () => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 mb: 3,
+                flexWrap: "wrap",
+                gap: 2,
               }}
             >
               <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                 Rekomendasi Untuk Anda
               </Typography>
-              <Button
-                size="small"
-                color="error"
-                variant="text"
-                onClick={handleClearReference}
+              <Stack
+                direction="row"
+                spacing={1}
+                useFlexGap
+                sx={{ flexWrap: "wrap" }}
               >
-                Bersihkan Acuan
-              </Button>
+                {selectedProduct && recommendations.length > 0 && (
+                  <>
+                    <Button
+                      size="small"
+                      color="error"
+                      variant="contained"
+                      startIcon={<PictureAsPdf />}
+                      disableElevation
+                      onClick={() =>
+                        exportRecommendationToPDF(
+                          selectedProduct,
+                          recommendations,
+                        )
+                      }
+                    >
+                      Export PDF
+                    </Button>
+                    <Button
+                      size="small"
+                      color="success"
+                      variant="contained"
+                      startIcon={<TableView />}
+                      disableElevation
+                      onClick={() =>
+                        exportRecommendationToExcel(
+                          selectedProduct,
+                          recommendations,
+                        )
+                      }
+                    >
+                      Export Excel
+                    </Button>
+                  </>
+                )}
+                <Button
+                  size="small"
+                  color="error"
+                  variant="outlined"
+                  onClick={handleClearReference}
+                >
+                  Bersihkan Acuan
+                </Button>
+              </Stack>
             </Box>
 
             {selectedProduct && (
@@ -546,7 +598,9 @@ export const CatalogPage = () => {
             ) : isProductsError ? (
               <ErrorState
                 title="Gagal Memuat Produk"
-                description={"Terjadi kesalahan saat memuat katalog produk. Silakan coba lagi."}
+                description={
+                  "Terjadi kesalahan saat memuat katalog produk. Silakan coba lagi."
+                }
                 onRetry={() => refetchProducts()}
               />
             ) : products.length === 0 ? (
