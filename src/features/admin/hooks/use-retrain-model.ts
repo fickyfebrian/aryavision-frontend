@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { MLClusteringResponse, MLCBFResponse, MLStatusResponse } from '../api/ml.api';
+import type { MLClusteringResponse, MLCBFResponse } from '../api/ml.api';
 
 import { mlApi } from '../api/ml.api';
 
