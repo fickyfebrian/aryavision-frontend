@@ -26,6 +26,7 @@ interface BackendProduct {
   product_url?: string;
   cluster?: number | string;
   updated_at?: string;
+  similarity_score?: number;
 }
 
 interface BackendPagination {
@@ -90,7 +91,8 @@ export const productService = {
       brand: item.brand,
       category: item.category,
       productUrl: item.product_url,
-      updatedAt: item.updated_at
+      updatedAt: item.updated_at,
+      similarityScore: item.similarity_score
     };
   },
 

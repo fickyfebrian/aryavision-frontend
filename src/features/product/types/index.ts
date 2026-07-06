@@ -13,6 +13,7 @@ export interface Product {
   category?: string;
   productUrl?: string;
   updatedAt?: string;
+  similarityScore?: number;
 }
 
 export interface RecommendationProduct extends Product {

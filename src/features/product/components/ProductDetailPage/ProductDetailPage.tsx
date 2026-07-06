@@ -34,7 +34,7 @@ export const ProductDetailPage = () => {
     try {
       const { recommendations: apiRecs } =
         await productService.getRecommendations(productId);
-      setRelatedProducts(apiRecs.slice(0, 3));
+      setRelatedProducts(apiRecs.slice(0, 4));
     } catch {
       setRelatedError("Gagal memuat rekomendasi produk.");
     } finally {

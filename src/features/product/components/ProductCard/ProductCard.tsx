@@ -1,4 +1,5 @@
 import Card from '@mui/material/Card';
+import Button from '@mui/material/Button';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -16,8 +17,6 @@ export interface ProductCardProps {
   onSelectReference?: (product: Product) => void;
   isReference?: boolean;
 }
-
-import Button from '@mui/material/Button';
 
 export const ProductCard = ({ product, onClick, onSelectReference, isReference }: ProductCardProps) => {
   return (
@@ -57,6 +56,12 @@ export const ProductCard = ({ product, onClick, onSelectReference, isReference }
             <RatingDisplay rating={product.rating} />
             <SoldDisplay soldCount={product.soldCount} />
           </Box>
+          
+          {product.similarityScore !== undefined && product.similarityScore > 0 && (
+            <Typography variant="caption" className="text-gray-500 mt-1 font-medium">
+              Tingkat Kemiripan: {(product.similarityScore * 100).toFixed(2)}%
+            </Typography>
+          )}
         </CardContent>
       </CardActionArea>
       <Box sx={{ p: 2, pt: 0, display: 'flex', gap: 1 }}>

@@ -32,6 +32,21 @@ export interface MLCBFResponse {
   };
 }
 
+export interface ClusterSummary {
+  cluster_id: number | string;
+  label: string;
+  total_product: number;
+  average_price: number;
+  average_rating: number;
+  average_sold: number;
+}
+
+export interface MLClusterSummaryResponse {
+  status: string;
+  message: string;
+  data: ClusterSummary[];
+}
+
 export const mlApi = {
   getStatus: async (): Promise<MLStatusResponse> => {
     const response = await axiosInstance.get('/ml/status');
@@ -47,4 +62,9 @@ export const mlApi = {
     const response = await axiosInstance.get('/ml/cbf/test');
     return response.data;
   },
+
+  getClusterSummary: async (): Promise<ClusterSummary[]> => {
+    const response = await axiosInstance.get<MLClusterSummaryResponse>('/ml/clusters');
+    return response.data.data;
+  }
 };
