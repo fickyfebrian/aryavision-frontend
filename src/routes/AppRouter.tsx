@@ -3,7 +3,7 @@ import { AppLayout } from "../components/layout";
 import { AdminLayout } from "../layouts/AdminLayout";
 import { HomePage } from "../features/home";
 import { CatalogPage } from "../features/catalog";
-import { RecommendationPage } from "../features/recommendation";
+
 import { ProductDetailPage } from "../features/product";
 import { LoginPage } from "../features/auth";
 import { DashboardPage, ProductsPage } from "../features/admin";
@@ -19,7 +19,7 @@ export const AppRouter = () => {
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/catalog" element={<CatalogPage />} />
-          <Route path="/recommendation" element={<RecommendationPage />} />
+
           <Route path="/product/:id" element={<ProductDetailPage />} />
         </Route>
 

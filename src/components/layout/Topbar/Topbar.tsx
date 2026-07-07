@@ -23,11 +23,11 @@ export const Topbar = () => {
   const { data: dashboardStats } = useDashboardStats();
 
   let title = "Dashboard";
-  let subtitle = "Monitor overall system performance.";
+  let subtitle = "Pantau performa sistem secara keseluruhan.";
 
   if (path.includes("/admin/products")) {
-    title = "Manage Products";
-    subtitle = "Manage CCTV catalog, filtering, and product information.";
+    title = "Manajemen Produk";
+    subtitle = "Kelola katalog CCTV, pemfilteran, dan informasi produk.";
   }
 
   const currentDate = formatDate(new Date());
@@ -99,7 +99,7 @@ export const Topbar = () => {
                     variant="caption"
                     className={`font-bold text-[11px] leading-none ${mlStatus?.needs_retrain ? "text-orange-600" : "text-green-600"}`}
                   >
-                    {mlStatus?.needs_retrain ? "Needs Retrain" : "Ready"}
+                    {mlStatus?.needs_retrain ? "Butuh Latih Ulang" : "Siap"}
                   </Typography>
                 </div>
               </div>
@@ -108,7 +108,7 @@ export const Topbar = () => {
                   variant="caption"
                   className="text-gray-500 text-[11px] font-medium leading-none"
                 >
-                  Version
+                  Versi
                 </Typography>
                 <Typography
                   variant="caption"
@@ -185,7 +185,7 @@ export const Topbar = () => {
                 variant="caption"
                 className="text-gray-500 text-[11px] font-medium block leading-none mb-1"
               >
-                Last Trained
+                Terakhir Dilatih
               </Typography>
               <Typography
                 variant="caption"
@@ -213,7 +213,7 @@ export const Topbar = () => {
                 disabled={!mlStatus?.needs_retrain}
                 disableElevation
               >
-                🧠 Retrain
+                🧠 Latih Ulang Model
               </Button>
             </Box>
           </Box>

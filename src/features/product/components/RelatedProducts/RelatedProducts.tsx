@@ -25,7 +25,7 @@ export const RelatedProducts = ({
   return (
     <Box sx={{ mt: 8, mb: 4 }}>
       <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 4 }}>
-        Rekomendasi Serupa
+        Rekomendasi Produk
       </Typography>
       {isLoading ? (
         <RecommendationSkeleton />

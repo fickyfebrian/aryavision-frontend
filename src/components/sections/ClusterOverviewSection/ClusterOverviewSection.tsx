@@ -51,7 +51,7 @@ export const ClusterOverviewSection = () => {
     <Section sx={{ bgcolor: 'background.paper' }}>
       <AppContainer>
         <SectionHeader 
-          title="Kategori Produk" 
+          title="Ringkasan Kelompok Harga" 
           subtitle="Tiga kategori utama untuk mempermudah Anda dalam menentukan pilihan sesuai kebutuhan spesifik."
           align="center"
         />
