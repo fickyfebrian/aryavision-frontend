@@ -4,158 +4,254 @@ import Card from "@mui/material/Card";
 import CircularProgress from "@mui/material/CircularProgress";
 import Skeleton from "@mui/material/Skeleton";
 import Divider from "@mui/material/Divider";
-import {
-  Package,
-  Tags,
-  Award,
-  TrendingUp,
-  TrendingDown,
-  Info,
-} from "lucide-react";
-import { useDashboardStats } from "./hooks/use-dashboard-stats";
+import Tooltip from "@mui/material/Tooltip";
+import { Info } from "lucide-react";
 import { useClusterSummary } from "./hooks/use-cluster-summary";
 import { formatCurrency } from "@/utils/formatters/currency";
 
 export const DashboardPage = () => {
-  const { data: stats, isLoading, error } = useDashboardStats();
   const {
-    data: clusterSummary,
+    data: clusterSummaryData,
     isLoading: isClusterLoading,
     error: clusterError,
   } = useClusterSummary();
 
-  if (isLoading) {
-    return (
-      <Box className="flex h-[400px] items-center justify-center">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const renderSpectrum = () => {
+    if (
+      !clusterSummaryData ||
+      !clusterSummaryData.products ||
+      clusterSummaryData.products.length === 0
+    )
+      return null;
 
-  if (error || !stats) {
+    const { clusters, products } = clusterSummaryData;
+
+    // Find global min and max to calculate percentages
+    const globalMin = Math.min(...products.map((p) => p.price));
+    const globalMax = Math.max(...products.map((p) => p.price));
+    const range = globalMax - globalMin || 1; // Prevent division by zero
+
+    const getLeftPercent = (price: number) => {
+      const p = ((price - globalMin) / range) * 100;
+      // Keep it within 0-100 just in case
+      return Math.max(0, Math.min(100, p));
+    };
+
+    const getClusterColor = (clusterId: number) => {
+      // 0: Budget (green), 1: Mid (orange), 2: Premium (red)
+      if (clusterId === 0) return "bg-green-500";
+      if (clusterId === 1) return "bg-orange-500";
+      if (clusterId === 2) return "bg-red-500";
+      return "bg-gray-500";
+    };
+
+    const getClusterLabel = (clusterId: number) => {
+      if (clusterId === 0) return "Budget";
+      if (clusterId === 1) return "Mid Range";
+      if (clusterId === 2) return "Premium";
+      return "Unknown";
+    };
+
     return (
-      <Box className="flex h-[400px] items-center justify-center">
-        <Typography color="error">
-          {error instanceof Error
-            ? error.message
-            : "Gagal mengambil data statistik"}
+      <Card sx={{ p: 4, mt: 6, borderRadius: 2, overflow: "visible" }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+          Visualisasi Distribusi Spektrum Harga K-Means (1D)
         </Typography>
-      </Box>
-    );
-  }
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 6 }}>
+          Peta persebaran data produk secara empiris dari harga terendah hingga
+          tertinggi. Bendera 🚩 menandakan pusat gravitasi (Centroid) dari
+          masing-masing klaster.
+        </Typography>
 
-  const statCards = [
-    {
-      label: "Total Products",
-      value: stats.total_products,
-      icon: <Package size={24} className="text-blue-500" />,
-      color: "bg-blue-50 border-blue-100",
-    },
-    {
-      label: "Total Brands",
-      value: stats.total_brands,
-      icon: <Tags size={24} className="text-purple-500" />,
-      color: "bg-purple-50 border-purple-100",
-    },
-    {
-      label: "Budget Cluster",
-      value: stats.budget_cluster,
-      icon: <TrendingDown size={24} className="text-green-500" />,
-      color: "bg-green-50 border-green-100",
-    },
-    {
-      label: "Mid Range Cluster",
-      value: stats.mid_range_cluster,
-      icon: <Award size={24} className="text-orange-500" />,
-      color: "bg-orange-50 border-orange-100",
-    },
-    {
-      label: "Premium Cluster",
-      value: stats.premium_cluster,
-      icon: <TrendingUp size={24} className="text-red-500" />,
-      color: "bg-red-50 border-red-100",
-    },
-  ];
+        <Box
+          sx={{ position: "relative", width: "100%", height: "80px", mt: 4 }}
+        >
+          {/* Garis Axis */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: 0,
+              right: 0,
+              height: "4px",
+              bgcolor: "grey.300",
+              borderRadius: "2px",
+              transform: "translateY(-50%)",
+            }}
+          />
+
+          {/* Render Products */}
+          {products.map((p) => {
+            const left = getLeftPercent(p.price);
+            return (
+              <Tooltip
+                key={`p-${p.id}`}
+                title={
+                  <div className="flex flex-col gap-1 text-sm">
+                    <strong>{p.product_name}</strong>
+                    <span>Harga: {formatCurrency(p.price)}</span>
+                    <span>Rating: {p.rating} ⭐</span>
+                    <span>Segmen: {getClusterLabel(p.cluster)}</span>
+                  </div>
+                }
+                arrow
+                placement="top"
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    left: `${left}%`,
+                    top: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "14px",
+                    height: "14px",
+                    borderRadius: "50%",
+                    opacity: 0.6,
+                    cursor: "pointer",
+                    "&:hover": {
+                      opacity: 1,
+                      zIndex: 10,
+                      transform: "translate(-50%, -50%) scale(1.8)",
+                    },
+                    transition: "all 0.2s",
+                  }}
+                  className={`${getClusterColor(p.cluster)} border border-white shadow-sm`}
+                />
+              </Tooltip>
+            );
+          })}
+
+          {/* Render Centroids */}
+          {clusters.map((c) => {
+            const left = getLeftPercent(c.average_price);
+            return (
+              <Tooltip
+                key={`c-${c.cluster_id}`}
+                title={`Pusat Harga ${c.label} (${formatCurrency(c.average_price)})`}
+                arrow
+                placement="top"
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    left: `${left}%`,
+                    top: "50%",
+                    transform: "translate(-50%, -100%)",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    zIndex: 20,
+                    mt: "-12px",
+                    "&:hover": {
+                      transform: "translate(-50%, -100%) scale(1.2)",
+                    },
+                    transition: "all 0.2s",
+                  }}
+                >
+                  🚩
+                </Box>
+              </Tooltip>
+            );
+          })}
+
+          {/* Axis Labels */}
+          <Typography
+            variant="caption"
+            sx={{
+              position: "absolute",
+              left: 0,
+              top: "calc(50% + 24px)",
+              fontWeight: "bold",
+            }}
+          >
+            {formatCurrency(globalMin)}
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              position: "absolute",
+              right: 0,
+              top: "calc(50% + 24px)",
+              fontWeight: "bold",
+            }}
+          >
+            {formatCurrency(globalMax)}
+          </Typography>
+        </Box>
+      </Card>
+    );
+  };
+
+  const getClusterDescription = (label: string) => {
+    const l = label.toLowerCase();
+    if (l === "budget")
+      return "CCTV dengan harga terjangkau (Budget Segment) yang ramah di kantong konsumen.";
+    if (l === "mid range")
+      return "CCTV dengan keseimbangan optimal antara harga dan spesifikasi teknologi (Mid-Tier Segment).";
+    if (l === "premium")
+      return "CCTV berteknologi tinggi kelas atas (Premium Segment) dengan fitur lengkap dan resolusi ultra tinggi.";
+    return "Segmen klaster CCTV.";
+  };
 
   return (
     <Box>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {statCards.map((stat, i) => (
-          <div key={i}>
-            <Card
-              className={`p-6 border shadow-sm ${stat.color} transition-all hover:shadow-md`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <Typography
-                    variant="body2"
-                    className="text-gray-600 font-medium mb-1"
-                  >
-                    {stat.label}
-                  </Typography>
-                  <Typography variant="h4" className="font-bold text-gray-900">
-                    {stat.value}
-                  </Typography>
-                </div>
-                <div className="p-3 bg-white rounded-full shadow-sm">
-                  {stat.icon}
-                </div>
-              </div>
+      <Typography
+        variant="h6"
+        color="text.primary"
+        sx={{ fontWeight: "bold", mb: 3 }}
+      >
+        Cluster summary
+      </Typography>
+      {isClusterLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} sx={{ p: 3, borderRadius: 2 }}>
+              <Skeleton variant="text" width="60%" height={32} />
+              <Skeleton variant="text" width="40%" height={24} sx={{ mb: 2 }} />
+              <Divider sx={{ my: 2 }} />
+              <Skeleton variant="text" width="80%" />
+              <Skeleton variant="text" width="70%" />
+              <Skeleton variant="text" width="90%" />
             </Card>
-          </div>
-        ))}
-      </div>
-
-      <Box sx={{ mt: 8 }}>
-        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 4 }}>
-          Cluster Summary
-        </Typography>
-
-        {isClusterLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} sx={{ p: 3, borderRadius: 2 }}>
-                <Skeleton variant="text" width="60%" height={32} />
-                <Skeleton
-                  variant="text"
-                  width="40%"
-                  height={24}
-                  sx={{ mb: 2 }}
-                />
-                <Divider sx={{ my: 2 }} />
-                <Skeleton variant="text" width="80%" />
-                <Skeleton variant="text" width="70%" />
-                <Skeleton variant="text" width="90%" />
-              </Card>
-            ))}
-          </div>
-        ) : clusterError || !clusterSummary || clusterSummary.length === 0 ? (
-          <Card
-            sx={{
-              p: 6,
-              textAlign: "center",
-              bgcolor: "grey.50",
-              border: "1px dashed",
-              borderColor: "grey.300",
-            }}
-          >
-            <Info size={48} className="mx-auto text-gray-400 mb-4" />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              Cluster summary belum tersedia.
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Silakan lakukan Retrain Model pada manajemen Machine Learning.
-            </Typography>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {clusterSummary.map((cluster) => {
+          ))}
+        </div>
+      ) : clusterError ||
+        !clusterSummaryData ||
+        !clusterSummaryData.clusters ||
+        clusterSummaryData.clusters.length === 0 ? (
+        <Card
+          sx={{
+            p: 6,
+            textAlign: "center",
+            bgcolor: "grey.50",
+            border: "1px dashed",
+            borderColor: "grey.300",
+          }}
+        >
+          <Info size={48} className="mx-auto text-gray-400 mb-4" />
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Cluster summary belum tersedia.
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Silakan lakukan Retrain Model pada bilah atas (topbar) untuk
+            menghasilkan visualisasi empiris.
+          </Typography>
+        </Card>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {clusterSummaryData.clusters.map((cluster) => {
               // Menyesuaikan warna berdasarkan label
               let colorClass = "bg-green-50 border-green-200 text-green-700";
               if (cluster.label.toLowerCase() === "mid range")
                 colorClass = "bg-orange-50 border-orange-200 text-orange-700";
               if (cluster.label.toLowerCase() === "premium")
                 colorClass = "bg-red-50 border-red-200 text-red-700";
+
+              // Filter products specific to this cluster
+              const clusterProducts =
+                clusterSummaryData.products?.filter(
+                  (p) => p.cluster === cluster.cluster_id,
+                ) || [];
 
               return (
                 <Card
@@ -167,24 +263,26 @@ export const DashboardPage = () => {
                     borderColor: colorClass
                       .split(" ")[1]
                       .replace("border-", ""),
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      mb: 1,
-                    }}
-                  >
+                  <Box sx={{ mb: 1 }}>
                     <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                       {cluster.label}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", mt: 0.5, lineHeight: 1.4 }}
+                    >
+                      {getClusterDescription(cluster.label)}
                     </Typography>
                   </Box>
                   <Typography
                     variant="h4"
                     color="primary"
-                    sx={{ fontWeight: "bold", mb: 2 }}
+                    sx={{ fontWeight: "bold", mb: 2, mt: 1 }}
                   >
                     {cluster.total_product}{" "}
                     <Typography
@@ -192,52 +290,152 @@ export const DashboardPage = () => {
                       variant="body1"
                       color="text.secondary"
                     >
-                      Produk
+                      CCTV
                     </Typography>
                   </Typography>
 
                   <Divider sx={{ my: 2 }} />
 
                   <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1.5,
+                      mb: 3,
+                    }}
                   >
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}
                     >
                       <Typography variant="body2" color="text.secondary">
-                        Rata-rata Harga
+                        • Batas Bawah
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        {formatCurrency(cluster.average_price)}
+                        {formatCurrency(cluster.min_price)}
                       </Typography>
                     </Box>
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}
                     >
                       <Typography variant="body2" color="text.secondary">
-                        Rata-rata Rating
+                        • Batas Atas
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        {cluster.average_rating.toFixed(2)} ⭐
+                        {formatCurrency(cluster.max_price)}
                       </Typography>
                     </Box>
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}
                     >
                       <Typography variant="body2" color="text.secondary">
-                        Rata-rata Terjual
+                        • Pusat Harga
                       </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        {Math.round(cluster.average_sold)} Pcs
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: "bold", color: "error.main" }}
+                      >
+                        {formatCurrency(cluster.average_price)} 🚩
                       </Typography>
                     </Box>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        • Rerata Rating
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        {cluster.average_rating.toFixed(2)} ★
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        • Rerata Terjual
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        {Math.round(cluster.average_sold)} unit
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: "bold",
+                      mb: 1,
+                      color: "text.secondary",
+                      fontSize: "0.8rem",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Daftar Produk
+                  </Typography>
+                  <Box
+                    sx={{
+                      flexGrow: 1,
+                      maxHeight: "160px",
+                      overflowY: "auto",
+                      border: "1px solid",
+                      borderColor: "grey.200",
+                      borderRadius: 1,
+                      bgcolor: "grey.50",
+                      "&::-webkit-scrollbar": { width: "6px" },
+                      "&::-webkit-scrollbar-thumb": {
+                        bgcolor: "grey.300",
+                        borderRadius: "4px",
+                      },
+                    }}
+                  >
+                    {clusterProducts.map((p, idx) => (
+                      <Box
+                        key={p.id}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          p: 1.5,
+                          borderBottom:
+                            idx < clusterProducts.length - 1
+                              ? "1px solid"
+                              : "none",
+                          borderColor: "grey.200",
+                          "&:hover": { bgcolor: "grey.100" },
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: "0.8rem",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            maxWidth: "60%",
+                          }}
+                        >
+                          {p.product_name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: "0.8rem",
+                            color: "text.secondary",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {formatCurrency(p.price)}
+                        </Typography>
+                      </Box>
+                    ))}
                   </Box>
                 </Card>
               );
             })}
           </div>
-        )}
-      </Box>
+
+          {renderSpectrum()}
+        </>
+      )}
     </Box>
   );
 };

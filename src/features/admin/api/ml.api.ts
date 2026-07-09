@@ -37,14 +37,28 @@ export interface ClusterSummary {
   label: string;
   total_product: number;
   average_price: number;
+  min_price: number;
+  max_price: number;
   average_rating: number;
   average_sold: number;
+}
+
+export interface ProductDataPoint {
+  id: number;
+  product_name: string;
+  price: number;
+  rating: number;
+  category: string;
+  cluster: number;
 }
 
 export interface MLClusterSummaryResponse {
   status: string;
   message: string;
-  data: ClusterSummary[];
+  data: {
+    clusters: ClusterSummary[];
+    products: ProductDataPoint[];
+  };
 }
 
 export const mlApi = {
@@ -63,7 +77,7 @@ export const mlApi = {
     return response.data;
   },
 
-  getClusterSummary: async (): Promise<ClusterSummary[]> => {
+  getClusterSummary: async (): Promise<MLClusterSummaryResponse['data']> => {
     const response = await axiosInstance.get<MLClusterSummaryResponse>('/ml/clusters');
     return response.data.data;
   }
