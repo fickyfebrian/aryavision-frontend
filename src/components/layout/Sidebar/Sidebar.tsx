@@ -7,7 +7,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
-import { LayoutDashboard, Package, Camera, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, Camera, LogOut, FlaskConical } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 
 const DRAWER_WIDTH = 256;
@@ -15,6 +15,7 @@ const DRAWER_WIDTH = 256;
 const menuItems = [
   { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} />, exact: true },
   { label: 'Products', path: '/admin/products', icon: <Package size={20} /> },
+  { label: 'Lab Algoritma', path: '/admin/lab', icon: <FlaskConical size={20} /> },
 ];
 
 export const Sidebar = () => {

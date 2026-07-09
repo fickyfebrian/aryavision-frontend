@@ -6,7 +6,7 @@ import { CatalogPage } from "../features/catalog";
 
 import { ProductDetailPage } from "../features/product";
 import { LoginPage } from "../features/auth";
-import { DashboardPage, ProductsPage } from "../features/admin";
+import { DashboardPage, ProductsPage, LabPage } from "../features/admin";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { ScrollToTop } from "../components/common";
 
@@ -31,6 +31,7 @@ export const AppRouter = () => {
           <Route element={<AdminLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="products" element={<ProductsPage />} />
+            <Route path="lab" element={<LabPage />} />
           </Route>
         </Route>
         
