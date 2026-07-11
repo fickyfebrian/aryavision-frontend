@@ -36,7 +36,7 @@ export const NormalizationTab: React.FC<NormalizationTabProps> = ({ bounds, clea
             Rentang nilai antar atribut sangat berbeda jauh. Contoh: <strong>Harga</strong> bernilai ratusan ribu hingga jutaan rupiah, sedangkan <strong>Rating</strong> hanya bernilai 1.0 sampai 5.0, dan <strong>Terjual</strong> berkisar 1 sampai 150.
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Bila tidak dinormalisasi, atribut Harga akan mendominasi seluruh hitungan jarak Euclidean dan membiaskan kemiripan Cosine! Atribut dirubah ke rentang yang sama setara yaitu $0$ sampai $1$ dengan formula di samping.
+            Tahap normalisasi ini ditujukan khusus untuk metode <strong>Content-Based Filtering (CBF)</strong>. Bila tidak dinormalisasi, atribut Harga akan membiaskan hitungan kemiripan Cosine (Cosine Similarity) karena angkanya jauh lebih besar dibanding Rating dan Terjual! Oleh karena itu, seluruh atribut disetarakan rentangnya menjadi 0 sampai 1 dengan formula di samping.
           </Typography>
         </Grid>
         <Grid size={{ xs: 12, md: 5 }}>

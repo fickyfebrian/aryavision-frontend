@@ -233,7 +233,7 @@ export const KMeansTab: React.FC<KMeansTabProps> = ({ clusters, cleaned_products
           <Card variant="outlined" sx={{ borderRadius: 2, p: 2, bgcolor: 'grey.50' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>Mengapa Menggunakan 1D Clustering berbasis Harga?</Typography>
             <Typography variant="body2" color="text.secondary">
-              Harga merupakan penentu utama keputusan pembelian (budgeting) konsumen. K-Means 1D secara matematis memetakan batas pengelompokan harga optimal tanpa intervensi bias manusia. Atribut lainnya seperti <strong>Rating</strong> dan <strong>Terjual (Popularitas)</strong> tetap dihitung rata-ratanya pada setiap kelompok klaster sebagai data statistik profil pendukung.
+              Harga merupakan penentu utama keputusan pembelian (budgeting) konsumen. K-Means 1D secara matematis memetakan batas pengelompokan harga optimal tanpa intervensi bias manusia. Perlu ditegaskan bahwa algoritma <strong>K-Means ini murni hanya menggunakan 1 atribut yaitu Harga</strong>, dan sama sekali <strong>TIDAK</strong> menggunakan atribut Rating maupun Popularitas dalam menentukan kelompok klaster.
             </Typography>
           </Card>
         </Grid>

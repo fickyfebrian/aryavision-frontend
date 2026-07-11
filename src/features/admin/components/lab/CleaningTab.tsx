@@ -35,7 +35,7 @@ export const CleaningTab: React.FC<CleaningTabProps> = ({ stats, raw_products, c
           TAHAP 1: PEMBERSIHAN DATA (DATA CLEANING)
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ maxWidth: '80%' }}>
-          Sebelum dataset diolah oleh algoritma K-Means, website mengidentifikasi record yang <strong>tidak lengkap (null)</strong> pada variabel utama (Harga, Rating, Popularitas). Data yang tidak memenuhi syarat akan dibersihkan agar model klasifikasi tidak bias.
+          Sebelum dataset diolah lebih lanjut, website mengidentifikasi record yang <strong>tidak lengkap (null) atau bernilai 0</strong> pada atribut utama (Harga, Rating, Popularitas). Data yang tidak memenuhi syarat akan dibersihkan agar seluruh proses perhitungan selanjutnya (baik K-Means maupun CBF) tidak bias.
         </Typography>
       </Box>
 
