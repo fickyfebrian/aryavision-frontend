@@ -51,6 +51,11 @@ export interface ProcessDatasetResponse {
       ratingNorm: number;
       salesNorm: number;
     }[];
+    evaluation?: {
+      recommended_k: number;
+      elbow: { k: number; inertia: number }[];
+      silhouette: { k: number; score: number }[];
+    };
   };
 }
 

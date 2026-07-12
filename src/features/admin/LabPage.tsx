@@ -195,6 +195,7 @@ export const LabPage = () => {
             <KMeansTab 
               clusters={dataset.clusters} 
               cleaned_products={dataset.cleaned_products} 
+              evaluation={dataset.evaluation}
             />
           </CustomTabPanel>
           

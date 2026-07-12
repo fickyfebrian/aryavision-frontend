@@ -8,6 +8,7 @@ import {
   Tooltip as MuiTooltip
 } from '@mui/material';
 import { formatCurrency } from '@/utils/formatters/currency';
+import { EvaluationCharts } from '../EvaluationCharts';
 
 interface KMeansTabProps {
   clusters: {
@@ -21,9 +22,10 @@ interface KMeansTabProps {
     average_sold: number;
   }[];
   cleaned_products: any[];
+  evaluation?: any;
 }
 
-export const KMeansTab: React.FC<KMeansTabProps> = ({ clusters, cleaned_products }) => {
+export const KMeansTab: React.FC<KMeansTabProps> = ({ clusters, cleaned_products, evaluation }) => {
   const getClusterDescription = (label: string) => {
     const l = label.toLowerCase();
     if (l === "budget")
@@ -355,6 +357,9 @@ export const KMeansTab: React.FC<KMeansTabProps> = ({ clusters, cleaned_products
           );
         })}
       </div>
+
+      {/* Evaluasi Model K-Means */}
+      <EvaluationCharts dynamicData={evaluation} isLabMode={true} />
 
     </Box>
   );

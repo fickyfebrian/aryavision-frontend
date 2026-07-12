@@ -61,6 +61,16 @@ export interface MLClusterSummaryResponse {
   };
 }
 
+export interface MLEvaluationResponse {
+  status: string;
+  message: string;
+  data: {
+    recommended_k: number;
+    elbow: { k: number; inertia: number }[];
+    silhouette: { k: number; score: number }[];
+  };
+}
+
 export const mlApi = {
   getStatus: async (): Promise<MLStatusResponse> => {
     const response = await axiosInstance.get('/ml/status');
@@ -79,6 +89,11 @@ export const mlApi = {
 
   getClusterSummary: async (): Promise<MLClusterSummaryResponse['data']> => {
     const response = await axiosInstance.get<MLClusterSummaryResponse>('/ml/clusters');
+    return response.data.data;
+  },
+
+  getEvaluation: async (): Promise<MLEvaluationResponse['data']> => {
+    const response = await axiosInstance.get<MLEvaluationResponse>('/ml/evaluation');
     return response.data.data;
   }
 };

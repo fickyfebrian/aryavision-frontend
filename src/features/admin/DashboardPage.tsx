@@ -8,6 +8,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { Info } from "lucide-react";
 import { useClusterSummary } from "./hooks/use-cluster-summary";
 import { formatCurrency } from "@/utils/formatters/currency";
+import { EvaluationCharts } from "./components/EvaluationCharts";
 
 export const DashboardPage = () => {
   const {
@@ -434,6 +435,7 @@ export const DashboardPage = () => {
           </div>
 
           {renderSpectrum()}
+          <EvaluationCharts />
         </>
       )}
     </Box>
