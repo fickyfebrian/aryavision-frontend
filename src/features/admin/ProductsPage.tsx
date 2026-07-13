@@ -295,7 +295,7 @@ export const ProductsPage = () => {
                 width: { xs: "100%", sm: "auto" },
               }}
             >
-              Add Product
+              Tambah Produk
             </Button>
           </Stack>
 
@@ -415,12 +415,12 @@ export const ProductsPage = () => {
             }}
           >
             <TableRow>
-              <TableCell>Image</TableCell>
-              <TableCell>Product Name</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Stats</TableCell>
-              <TableCell>Cluster</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Gambar</TableCell>
+              <TableCell>Nama Produk</TableCell>
+              <TableCell>Harga</TableCell>
+              <TableCell>Rating</TableCell>
+              <TableCell>Klaster</TableCell>
+              <TableCell align="right">Aksi</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
