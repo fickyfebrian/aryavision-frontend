@@ -12,7 +12,7 @@ import { NumericFormat } from "react-number-format";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { productService } from "@/services/product.service";
+import { productService, getFullImageUrl } from "@/services/product.service";
 import type { Product } from "@/features/product/types";
 import {
   productFormSchema,
@@ -245,7 +245,7 @@ export const ProductFormModal = ({
               {currentImageUrl && (
                 <Box sx={{ mt: 2, maxWidth: '200px', borderRadius: 2, overflow: 'hidden', border: '1px solid #e0e0e0' }}>
                   <img 
-                    src={currentImageUrl.startsWith('/uploads') ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${currentImageUrl}` : currentImageUrl} 
+                    src={getFullImageUrl(currentImageUrl)} 
                     alt="Preview" 
                     style={{ width: '100%', height: 'auto', display: 'block' }} 
                     onError={(e) => {

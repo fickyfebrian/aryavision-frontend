@@ -68,6 +68,16 @@ export interface GetProductsParams {
   order?: 'asc' | 'desc';
 }
 
+    export const getFullImageUrl = (url: string | undefined | null) => {
+      if (!url) return 'https://images.unsplash.com/photo-1557825835-b453e020e980?w=500&q=80';
+      if (url.startsWith('/uploads')) {
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const serverUrl = baseUrl.replace(/\/api\/?$/, '');
+        return `${serverUrl}${url}`;
+      }
+      return url;
+    };
+
 export const productService = {
   _mapBackendProductToFrontend: (item: BackendProduct): Product => {
     let cluster: ProductCluster = 'budget';
@@ -79,16 +89,10 @@ export const productService = {
       cluster = 'budget';
     }
     
-      let imageUrl = item.image_url || 'https://images.unsplash.com/photo-1557825835-b453e020e980?w=500&q=80';
-      if (imageUrl.startsWith('/uploads')) {
-        const backendBaseUrl = import.meta.env.VITE_API_URL.replace('/api', '');
-        imageUrl = `${backendBaseUrl}${imageUrl}`;
-      }
-
     return {
       id: String(item.id),
       name: item.product_name,
-      imageUrl: imageUrl,
+      imageUrl: getFullImageUrl(item.image_url),
       price: item.price,
       rating: item.rating || 0,
       soldCount: item.sold || 0,
