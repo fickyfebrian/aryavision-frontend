@@ -115,7 +115,7 @@ export const EvaluationCharts: React.FC<{ dynamicData?: any, isLabMode?: boolean
             
             <Box sx={{ height: 300, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={elbow} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <LineChart data={elbow} margin={{ top: 25, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis 
                     dataKey="k" 
@@ -162,7 +162,7 @@ export const EvaluationCharts: React.FC<{ dynamicData?: any, isLabMode?: boolean
             
             <Box sx={{ height: 300, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={silhouette} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <LineChart data={silhouette} margin={{ top: 25, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis 
                     dataKey="k" 
