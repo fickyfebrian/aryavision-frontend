@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -9,6 +9,10 @@ import Typography from "@mui/material/Typography";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NumericFormat } from "react-number-format";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { productService } from "@/services/product.service";
 import type { Product } from "@/features/product/types";
 import {
   productFormSchema,
@@ -35,6 +39,8 @@ export const ProductFormModal = ({
     handleSubmit,
     reset,
     control,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema) as any,
@@ -50,6 +56,26 @@ export const ProductFormModal = ({
       description: "",
     },
   });
+
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const currentImageUrl = watch("image_url");
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const url = await productService.uploadImage(file);
+      setValue("image_url", url, { shouldValidate: true });
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      alert("Gagal mengupload gambar. Pastikan backend server menyala.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (open) {
@@ -188,13 +214,46 @@ export const ProductFormModal = ({
               />
             </div>
             <div className="col-span-1 md:col-span-12">
-              <TextField
-                fullWidth
-                label="Image URL"
-                {...register("image_url")}
-                error={!!errors.image_url}
-                helperText={errors.image_url?.message}
-              />
+              <div className="flex flex-col gap-2">
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>Product Image</Typography>
+                
+                {/* Hidden input to keep form state tracking */}
+                <input type="hidden" {...register("image_url")} />
+                
+                <Button
+                  variant="outlined"
+                  component="label"
+                  disabled={isUploading}
+                  startIcon={isUploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
+                  sx={{ height: '40px', maxWidth: '200px' }}
+                >
+                  {isUploading ? "Uploading..." : "Upload Photo"}
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                  />
+                </Button>
+                {!!errors.image_url && (
+                  <Typography variant="caption" color="error">
+                    {errors.image_url?.message}
+                  </Typography>
+                )}
+              </div>
+              {currentImageUrl && (
+                <Box sx={{ mt: 2, maxWidth: '200px', borderRadius: 2, overflow: 'hidden', border: '1px solid #e0e0e0' }}>
+                  <img 
+                    src={currentImageUrl.startsWith('/uploads') ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${currentImageUrl}` : currentImageUrl} 
+                    alt="Preview" 
+                    style={{ width: '100%', height: 'auto', display: 'block' }} 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1557825835-b453e020e980?w=500&q=80';
+                    }}
+                  />
+                </Box>
+              )}
             </div>
             <div className="col-span-1 md:col-span-12">
               <TextField

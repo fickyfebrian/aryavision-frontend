@@ -79,10 +79,16 @@ export const productService = {
       cluster = 'budget';
     }
     
+      let imageUrl = item.image_url || 'https://images.unsplash.com/photo-1557825835-b453e020e980?w=500&q=80';
+      if (imageUrl.startsWith('/uploads')) {
+        const backendBaseUrl = import.meta.env.VITE_API_URL.replace('/api', '');
+        imageUrl = `${backendBaseUrl}${imageUrl}`;
+      }
+
     return {
       id: String(item.id),
       name: item.product_name,
-      imageUrl: item.image_url || 'https://images.unsplash.com/photo-1557825835-b453e020e980?w=500&q=80',
+      imageUrl: imageUrl,
       price: item.price,
       rating: item.rating || 0,
       soldCount: item.sold || 0,
@@ -151,5 +157,17 @@ export const productService = {
   deleteProduct: async (id: string) => {
     const response = await axiosInstance.delete(`/products/${id}`);
     return response.data;
+  },
+
+  uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await axiosInstance.post('/products/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data.image_url;
   }
 };
