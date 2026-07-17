@@ -60,24 +60,47 @@ export const ProductFormModal = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentImageUrl = watch("image_url");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setSelectedFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setValue("image_url", objectUrl, { shouldValidate: true });
+  };
+
+  const handleRemovePhoto = () => {
+    setSelectedFile(null);
+    setValue("image_url", "", { shouldValidate: true });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const onFormSubmit = async (data: ProductFormValues) => {
     try {
       setIsUploading(true);
-      const url = await productService.uploadImage(file);
-      setValue("image_url", url, { shouldValidate: true });
+      let finalImageUrl = data.image_url;
+      
+      // Jika ada file baru yang dipilih, upload dulu ke Supabase
+      if (selectedFile) {
+        finalImageUrl = await productService.uploadImage(selectedFile);
+      }
+      
+      await onSubmit({ ...data, image_url: finalImageUrl });
     } catch (error) {
-      console.error("Failed to upload image:", error);
+      console.error("Failed to upload image during submit:", error);
       alert("Gagal mengupload gambar. Pastikan backend server menyala.");
     } finally {
       setIsUploading(false);
     }
   };
 
+
   useEffect(() => {
+    setSelectedFile(null);
     if (open) {
       if (initialData) {
         reset({
@@ -109,7 +132,7 @@ export const ProductFormModal = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onFormSubmit)}>
         <DialogTitle className="font-bold">
           {initialData ? "Edit Product" : "Add New Product"}
         </DialogTitle>
@@ -220,22 +243,37 @@ export const ProductFormModal = ({
                 {/* Hidden input to keep form state tracking */}
                 <input type="hidden" {...register("image_url")} />
                 
-                <Button
-                  variant="outlined"
-                  component="label"
-                  disabled={isUploading}
-                  startIcon={isUploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
-                  sx={{ height: '40px', maxWidth: '200px' }}
-                >
-                  {isUploading ? "Uploading..." : "Upload Photo"}
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleFileUpload}
-                  />
-                </Button>
+                
+                <div className="flex gap-2">
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    disabled={isUploading}
+                    startIcon={isUploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
+                    sx={{ height: '40px', maxWidth: '200px' }}
+                  >
+                    {isUploading ? "Uploading..." : "Upload Photo"}
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                    />
+                  </Button>
+                  
+                  {(currentImageUrl || selectedFile) && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={handleRemovePhoto}
+                      disabled={isUploading}
+                      sx={{ height: '40px' }}
+                    >
+                      Hapus Foto
+                    </Button>
+                  )}
+                </div>
                 {!!errors.image_url && (
                   <Typography variant="caption" color="error">
                     {errors.image_url?.message}
