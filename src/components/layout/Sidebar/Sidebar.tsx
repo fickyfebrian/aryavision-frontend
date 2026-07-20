@@ -14,7 +14,7 @@ const DRAWER_WIDTH = 256;
 
 const menuItems = [
   { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} />, exact: true },
-  { label: 'Products', path: '/admin/products', icon: <Package size={20} /> },
+  { label: 'Katalog Produk', path: '/admin/products', icon: <Package size={20} /> },
   { label: 'Lab Algoritma', path: '/admin/lab', icon: <FlaskConical size={20} /> },
 ];
 

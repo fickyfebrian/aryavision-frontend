@@ -200,7 +200,7 @@ export const DashboardPage = () => {
         color="text.primary"
         sx={{ fontWeight: "bold", mb: 3 }}
       >
-        Cluster summary
+        Ringkasan Klaster
       </Typography>
       {isClusterLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -230,7 +230,7 @@ export const DashboardPage = () => {
         >
           <Info size={48} className="mx-auto text-gray-400 mb-4" />
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            Cluster summary belum tersedia.
+            Ringkasan klaster belum tersedia.
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Silakan lakukan Retrain Model pada bilah atas (topbar) untuk

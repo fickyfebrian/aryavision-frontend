@@ -437,7 +437,7 @@ export const ProductsPage = () => {
                   align="center"
                   className="py-12 text-gray-500"
                 >
-                  No products found.
+                  Produk tidak ditemukan.
                 </TableCell>
               </TableRow>
             ) : (
@@ -522,7 +522,7 @@ export const ProductsPage = () => {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>Konfirmasi Hapus</DialogTitle>
         <DialogContent>
           Apakah Anda yakin ingin menghapus produk ini?
         </DialogContent>

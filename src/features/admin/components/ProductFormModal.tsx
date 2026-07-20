@@ -134,14 +134,14 @@ export const ProductFormModal = ({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onFormSubmit)}>
         <DialogTitle className="font-bold">
-          {initialData ? "Edit Product" : "Add New Product"}
+          {initialData ? "Edit Produk" : "Tambah Produk Baru"}
         </DialogTitle>
         <DialogContent dividers>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div className="col-span-1 md:col-span-12">
               <TextField
                 fullWidth
-                label="Product Name"
+                label="Nama Produk"
                 {...register("product_name")}
                 error={!!errors.product_name}
                 helperText={errors.product_name?.message}
@@ -160,7 +160,7 @@ export const ProductFormModal = ({
             <div className="col-span-1 md:col-span-6">
               <TextField
                 fullWidth
-                label="Category"
+                label="Kategori"
                 {...register("category")}
                 error={!!errors.category}
                 helperText={errors.category?.message}
@@ -178,7 +178,7 @@ export const ProductFormModal = ({
                     getInputRef={ref}
                     customInput={TextField}
                     fullWidth
-                    label="Price (Rp)"
+                    label="Harga (Rp)"
                     thousandSeparator="."
                     decimalSeparator=","
                     allowNegative={false}
@@ -223,7 +223,7 @@ export const ProductFormModal = ({
                     getInputRef={ref}
                     customInput={TextField}
                     fullWidth
-                    label="Sold"
+                    label="Terjual"
                     thousandSeparator="."
                     decimalSeparator=","
                     allowNegative={false}
@@ -238,7 +238,7 @@ export const ProductFormModal = ({
             </div>
             <div className="col-span-1 md:col-span-12">
               <div className="flex flex-col gap-2">
-                <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>Product Image</Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>Gambar Produk</Typography>
                 
                 {/* Hidden input to keep form state tracking */}
                 <input type="hidden" {...register("image_url")} />
@@ -252,7 +252,7 @@ export const ProductFormModal = ({
                     startIcon={isUploading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
                     sx={{ height: '40px', maxWidth: '200px' }}
                   >
-                    {isUploading ? "Uploading..." : "Upload Photo"}
+                    {isUploading ? "Mengunggah..." : "Unggah Foto"}
                     <input
                       type="file"
                       hidden
@@ -296,7 +296,7 @@ export const ProductFormModal = ({
             <div className="col-span-1 md:col-span-12">
               <TextField
                 fullWidth
-                label="Product URL"
+                label="URL Produk"
                 {...register("product_url")}
                 error={!!errors.product_url}
                 helperText={errors.product_url?.message}
@@ -305,7 +305,7 @@ export const ProductFormModal = ({
             <div className="col-span-1 md:col-span-12">
               <TextField
                 fullWidth
-                label="Description"
+                label="Deskripsi"
                 multiline
                 rows={4}
                 {...register("description")}
@@ -320,8 +320,8 @@ export const ProductFormModal = ({
                   color="textSecondary"
                   className="italic"
                 >
-                  * Cluster is read-only and will be updated automatically by
-                  K-Means algorithm.
+                  * Klaster bersifat read-only dan akan diperbarui secara otomatis oleh
+                  algoritma K-Means.
                 </Typography>
               </div>
             )}
@@ -329,10 +329,10 @@ export const ProductFormModal = ({
         </DialogContent>
         <DialogActions className="p-4">
           <Button onClick={onClose} disabled={loading}>
-            Cancel
+            Batal
           </Button>
           <Button type="submit" variant="contained" disabled={loading}>
-            {loading ? "Saving..." : "Save Product"}
+            {loading ? "Menyimpan..." : "Simpan Produk"}
           </Button>
         </DialogActions>
       </form>
