@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { Section } from '../../ui/Section';
 import { AppContainer } from '../../ui/AppContainer';
 import { SectionHeader } from '../SectionHeader';
-import { POPULAR_PRODUCTS_DATA } from '../../../features/home';
 import { ProductCard } from '../../../features/product/components';
 import type { Product } from '../../../features/product/types';
 import { productService } from '../../../services/product.service';
+import { useCatalogProducts } from '../../../features/catalog/hooks/use-catalog-products';
 import { RecommendationResult, RecommendationSkeleton, RecommendationEmpty } from '../../../features/recommendation/components';
 import { ErrorState } from '../../common';
 import { Grid } from '@mui/material';
@@ -33,6 +33,19 @@ const styles = {
 export const PopularProductsSection = () => {
   const navigate = useNavigate();
   
+  // Fetch Popular Products
+  const { 
+    data: popularProductsData, 
+    isLoading: isProductsLoading, 
+    isError: isProductsError 
+  } = useCatalogProducts({
+    page: 1,
+    limit: 4,
+    sortParam: 'sold-desc',
+  });
+  
+  const popularProducts = popularProductsData?.items || [];
+
   // Recommendation States
   const [referenceProductId, setReferenceProductId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -129,17 +142,31 @@ export const PopularProductsSection = () => {
           </Box>
         )}
 
-        <Box sx={styles.gridContainer}>
-          {POPULAR_PRODUCTS_DATA.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onClick={handleProductClick}
-              onSelectReference={handleSelectReference}
-              isReference={product.id === referenceProductId}
-            />
-          ))}
-        </Box>
+        {isProductsLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <Typography color="text.secondary">Memuat produk pilihan...</Typography>
+          </Box>
+        ) : isProductsError ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <Typography color="error">Gagal memuat produk pilihan.</Typography>
+          </Box>
+        ) : popularProducts.length === 0 ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <Typography color="text.secondary">Belum ada produk yang tersedia.</Typography>
+          </Box>
+        ) : (
+          <Box sx={styles.gridContainer}>
+            {popularProducts.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onClick={handleProductClick}
+                onSelectReference={handleSelectReference}
+                isReference={product.id === referenceProductId}
+              />
+            ))}
+          </Box>
+        )}
       </AppContainer>
     </Section>
   );
