@@ -48,7 +48,7 @@ export const RetrainModelDialog = ({ open, onClose }: RetrainModelDialogProps) =
       setStep('success');
     } catch (error: any) {
       setStep('error');
-      setErrorMessage(error?.response?.data?.message || error.message || 'An unexpected error occurred.');
+      setErrorMessage(error?.response?.data?.message || error.message || 'Terjadi kesalahan yang tidak terduga.');
     }
   };
 

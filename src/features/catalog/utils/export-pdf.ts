@@ -47,24 +47,37 @@ export const exportRecommendationToPDF = (
 
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Nama Produk : ${truncateString(selectedProduct.name, 70)}`, 14, 48);
-  doc.text(`Harga       : ${formatPrice(selectedProduct.price)}`, 14, 54);
-  doc.text(`Rating      : ${selectedProduct.rating} / 5.0`, 14, 60);
-  doc.text(`Terjual     : ${selectedProduct.soldCount}`, 14, 66);
-  doc.text(
-    `Cluster     : ${capitalizeString(selectedProduct.cluster)}`,
-    14,
-    72,
-  );
+  
+  let currentY = 48;
+  const lineSpacing = 6;
+  
+  doc.text("Nama Produk :", 14, currentY);
+  const splitName = doc.splitTextToSize(selectedProduct.name, 145);
+  doc.text(splitName, 40, currentY);
+  
+  currentY += splitName.length * lineSpacing;
+  
+  doc.text(`Harga       : ${formatPrice(selectedProduct.price)}`, 14, currentY);
+  currentY += lineSpacing;
+  
+  doc.text(`Rating      : ${selectedProduct.rating} / 5.0`, 14, currentY);
+  currentY += lineSpacing;
+  
+  doc.text(`Terjual     : ${selectedProduct.soldCount}`, 14, currentY);
+  currentY += lineSpacing;
+  
+  doc.text(`Cluster     : ${capitalizeString(selectedProduct.cluster)}`, 14, currentY);
+  currentY += lineSpacing;
 
   // 4. Tabel Daftar Rekomendasi
+  currentY += 10;
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text("Daftar Rekomendasi", 14, 86);
+  doc.text("Daftar Rekomendasi", 14, currentY);
 
   const tableData = recommendations.map((item, index) => [
     index + 1,
-    truncateString(item.name, 40),
+    item.name, // AutoTable will wrap this automatically
     formatPrice(item.price),
     `${item.rating}`,
     item.soldCount,
@@ -72,7 +85,7 @@ export const exportRecommendationToPDF = (
   ]);
 
   autoTable(doc, {
-    startY: 92,
+    startY: currentY + 6,
     head: [["No", "Nama Produk", "Harga", "Rating", "Terjual", "Cluster"]],
     body: tableData,
     theme: "grid",
