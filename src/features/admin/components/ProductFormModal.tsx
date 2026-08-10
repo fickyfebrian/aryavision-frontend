@@ -293,15 +293,7 @@ export const ProductFormModal = ({
                 </Box>
               )}
             </div>
-            <div className="col-span-1 md:col-span-12">
-              <TextField
-                fullWidth
-                label="URL Produk"
-                {...register("product_url")}
-                error={!!errors.product_url}
-                helperText={errors.product_url?.message}
-              />
-            </div>
+
             <div className="col-span-1 md:col-span-12">
               <TextField
                 fullWidth
