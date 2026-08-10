@@ -16,10 +16,7 @@ const capitalizeString = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-const truncateString = (str: string, maxLength: number) => {
-  if (!str) return "";
-  return str.length > maxLength ? str.substring(0, maxLength) + "..." : str;
-};
+
 
 export const exportRecommendationToPDF = (
   selectedProduct: Product,
